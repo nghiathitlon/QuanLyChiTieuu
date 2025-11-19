@@ -1,6 +1,6 @@
 <?php
-// dashboard.php
-session_start();
+require 'header.php';
+require 'db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -329,3 +329,4 @@ $transactions_result = $conn->query("
 // Đóng kết nối DB ở cuối file
 $conn->close();
 ?>
+<?php require 'footer.php'; ?>

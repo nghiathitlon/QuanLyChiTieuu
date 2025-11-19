@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <?php require 'header.php'; ?>
     <title>Đăng ký</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -21,6 +22,7 @@
         <button type="submit">Đăng ký</button>
     </form>
     <p>Đã có tài khoản? <a href="login.php">Đăng nhập ngay</a></p>
+    <?php require 'footer.php'; ?>
 </body>
 
 </html>

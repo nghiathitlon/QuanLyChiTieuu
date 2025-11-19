@@ -6,6 +6,7 @@
 </head>
 
 <body>
+    <?php require 'header.php'; ?>
     <h2>Đăng nhập</h2>
     <?php
         if (isset($_GET['register']) && $_GET['register'] == 'success') {
@@ -20,6 +21,7 @@
         <button type="submit">Đăng nhập</button>
     </form>
     <p>Chưa có tài khoản? <a href="register.php">Đăng ký</a></p>
+    <?php require 'footer.php'; ?>
 </body>
 
 </html>
