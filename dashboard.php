@@ -31,12 +31,6 @@ $current_year_num = intval(date('Y'));
 $current_month_num = intval(date('m'));
 $is_current_month = ($selected_month === $current_month_num && $selected_year === $current_year_num);
 
-
-
-
-// Chuẩn format Y-m dùng cho truy vấn
-$selected_ym = $selected_year . '-' . str_pad($selected_month, 2, '0', STR_PAD_LEFT);
-
 // Tính Tổng Thu nhập
 $income_result = $conn->query(
     "SELECT SUM(t.amount) AS total_income
@@ -74,7 +68,7 @@ $budget_result = $conn->query("
     FROM budget 
     WHERE user_id = $current_user_id
       AND month = $current_month_num
-      AND year = $current_year_num
+      AND year = $current_year
 ");
 
 $monthly_budget = 0;
@@ -147,7 +141,7 @@ $transactions_result = $conn->query("
     FROM Transactions t
     JOIN Categories c ON t.category_id = c.category_id
     WHERE t.user_id = $current_user_id
-    ORDER BY t.transaction_date DESC
+    ORDER BY t.transaction_date DESC, t.transaction_id DESC
     LIMIT 20
 ");
 
@@ -380,21 +374,6 @@ $transactions_result = $conn->query("
 
 <?php endif; ?>
 
-
-<section style="margin:20px; padding:15px; border:1px solid #ccc;">
-    <h2>Chuyển đổi VND → USD</h2>
-
-    <input id="vnd_input" type="number" placeholder="Nhập số tiền VND" 
-           style="padding:8px; width:200px">
-
-    <button onclick="convertVND()" 
-            style="padding:8px 12px; margin-left:10px; cursor:pointer;">
-        Chuyển đổi
-    </button>
-
-    <p id="convert_result" style="margin-top:10px; font-size:18px; font-weight:bold;"></p>
-</section>
-
 <script>
 function convertVND() {
     let vnd = document.getElementById("vnd_input").value;
@@ -431,19 +410,112 @@ function convertVND() {
     </main>
 
     <!-- ⭐ FORM ĐẶT NGÂN SÁCH THÁNG -->
-    <section style="margin: 20px; padding: 15px; border:1px solid #ccc;">
-        <h2>Đặt ngân sách tháng</h2>
-        <form action="actions/action_set_budget.php" method="POST">
+<section class="budget-form">
+    <h2>Đặt ngân sách tháng</h2>
+    <form action="actions/action_set_budget.php" method="POST">
+        <div class="form-group">
             <label>Ngân sách (VND):</label>
-            <input type="number" name="budget_amount" required>
+            <input type="number" name="budget_amount" required placeholder="Nhập số tiền ngân sách">
+        </div>
+        <button type="submit" class="btn-submit">Lưu ngân sách</button>
+    </form>
+</section>
 
-            <button type="submit">Lưu ngân sách</button>
-        </form>
+<!-- FORM CHUYỂN ĐỔI TIỀN VNĐ SANG ĐÔ LA -->
+<section class="currency-converter">
+    <h2>Chuyển đổi VND → USD</h2>
+    <div class="form-group">
+        <input id="vnd_input" type="number" placeholder="Nhập số tiền VND">
+        <button type="button" onclick="convertVND()" class="btn-submit">Chuyển đổi</button>
+    </div>
+    <p id="convert_result" class="convert-result"></p>
+</section>
+
+<style>
+/* Căn chung 2 form */
+.budget-form, .currency-converter {
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fdfdfd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.budget-form h2, .currency-converter h2 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.6rem;
+}
+
+/* Form group */
+.form-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    min-width: 120px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+/* Button chung */
+.btn-submit {
+    padding: 10px 18px;
+    background-color: #1cc88a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #17a673;
+}
+
+/* Kết quả chuyển đổi tiền tệ */
+.convert-result {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #d84315;
+}
+
+/* Responsive nhỏ */
+@media (max-width: 600px) {
+    .form-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .form-group label {
+        min-width: auto;
+    }
+    .form-group input, .form-group button {
+        width: 100%;
+    }
+}
+</style>
+
+
+    <p id="convert_result" style="margin-top:10px; font-size:18px; font-weight:bold;"></p>
     </section>
-
-
     <section class="transaction-list">
-        <h2>Giao dịch gần đây</h2>
+    <h2>Giao dịch gần đây</h2>
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
@@ -451,6 +523,7 @@ function convertVND() {
                     <th>Danh mục</th>
                     <th>Số tiền</th>
                     <th>Ghi chú</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -458,27 +531,105 @@ function convertVND() {
                 if ($transactions_result->num_rows > 0) {
                     while ($row = $transactions_result->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>" . $row['transaction_date'] . "</td>";
+                        echo "<td>" . date('d/m/Y', strtotime($row['transaction_date'])) . "</td>";
                         echo "<td>" . htmlspecialchars($row['category_name']) . "</td>";
                         echo "<td>" . format_vnd_with_usd($row['amount']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-
                         echo "<td>
-                            <a href='edit_transaction.php?id={$row['transaction_id']}'>Sửa</a> | 
-                            <a href='actions/action_delete_transaction.php?id={$row['transaction_id']}'
-                               onclick='return confirm(\"Bạn có chắc chắn muốn xóa giao dịch này?\")'
-                               style='color:red;'>Xóa</a>
+                            <a href='edit_transaction.php?id={$row['transaction_id']}' class='edit-btn'>Sửa</a> 
+                            <a href='actions/action_delete_transaction.php?id={$row['transaction_id']}' 
+                               onclick='return confirm(\"Bạn có chắc chắn muốn xóa giao dịch này?\")' 
+                               class='delete-btn'>Xóa</a>
                         </td>";
-
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='5'>Chưa có giao dịch nào.</td></tr>";
+                    echo "<tr><td colspan='5' class='no-data'>Chưa có giao dịch nào.</td></tr>";
                 }
                 ?>
             </tbody>
         </table>
-    </section>
+    </div>
+</section>
+
+<style>
+.transaction-list {
+    margin-top: 30px;
+}
+
+.transaction-list h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.table-container {
+    max-height: 400px; /* scroll nếu nhiều giao dịch */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.transaction-list table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.transaction-list thead {
+    background-color: #1cc88a;
+    color: white;
+    position: sticky;
+    top: 0;
+}
+
+.transaction-list th, .transaction-list td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.transaction-list tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.transaction-list tbody tr:hover {
+    background-color: #d1f0e2;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-right: 5px;
+}
+
+.edit-btn {
+    background-color: #4e73df;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #2e59d9;
+}
+
+.delete-btn {
+    background-color: #e74a3b;
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.no-data {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+</style>
+
 
 
 
