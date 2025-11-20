@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require 'db_connect.php';
-require 'currency.php';  
+require 'functions.php';  
 
 $current_user_id = $_SESSION['user_id'];
 $current_username = $_SESSION['username'];
@@ -204,48 +204,10 @@ $transactions_result = $conn->query("
 <body>
     <header>
         <h1>Chào mừng, <?php echo htmlspecialchars($current_username); ?>!</h1>
-        <nav>
-            <a href="categories.php">Quản lý Danh mục</a> |
-            <a href="actions/action_logout.php">Đăng xuất</a>
-        </nav>
     </header>
 
     
-    <!-- PHẦN CHỌN THÁNG/NĂM & XEM LẠI CHI TIÊU -->
-<section style="margin:20px 0;">
-    <h2>Xem lại chi tiêu</h2>
-
-    <form method="GET" style="display:flex; gap:20px; align-items:flex-end; margin-bottom:20px;">
-        <div>
-            <label>Chọn tháng:</label>
-            <select name="month">
-                <?php for ($m = 1; $m <= 12; $m++): ?>
-                    <option value="<?= $m ?>" <?= ($m == $selected_month ? 'selected' : '') ?>>
-                        Tháng <?= $m ?>
-                    </option>
-                <?php endfor; ?>
-            </select>
-        </div>
-
-        <div>
-            <label>Chọn năm:</label>
-            <select name="year">
-                <?php for ($y = 2020; $y <= 2030; $y++): ?>
-                    <option value="<?= $y ?>" <?= ($y == $selected_year ? 'selected' : '') ?>>
-                        <?= $y ?>
-                    </option>
-                <?php endfor; ?>
-            </select>
-        </div>
-
-        <div>
-            <button type="submit" style="padding:6px 12px; background:#1cc88a; color:white; border:none; border-radius:5px;">
-                Xem chi tiêu
-            </button>
-        </div>
-    </form>
-</section>
-
+ 
 
     <!-- Phần tổng quan chi tiêu -->
     <section class="summary">
@@ -364,14 +326,6 @@ $transactions_result = $conn->query("
     </section>
 
 <?php else: ?>
-
-    <!-- 🔒 KHÔNG CHO THÊM GIAO DỊCH -->
-    <div style="padding:20px; background:#ffe0e0; border-left:5px solid red; margin:20px;">
-        <h3>🔒 Không thể thêm giao dịch</h3>
-        <p>Bạn chỉ có thể thêm Thu nhập và Chi tiêu trong <strong>tháng hiện tại</strong>.</p>
-        <p>Hãy quay lại tháng <?= date("m") ?>/<?= date("Y") ?> để tiếp tục.</p>
-    </div>
-
 <?php endif; ?>
 
 <script>
@@ -383,7 +337,7 @@ function convertVND() {
         return;
     }
 
-    fetch("convert.php?amount=" + encodeURIComponent(vnd))
+    fetch("functions.php?amount=" + encodeURIComponent(vnd))
         .then(res => res.json())
         .then(data => {
             if (!data.ok) {
@@ -421,15 +375,7 @@ function convertVND() {
     </form>
 </section>
 
-<!-- FORM CHUYỂN ĐỔI TIỀN VNĐ SANG ĐÔ LA -->
-<section class="currency-converter">
-    <h2>Chuyển đổi VND → USD</h2>
-    <div class="form-group">
-        <input id="vnd_input" type="number" placeholder="Nhập số tiền VND">
-        <button type="button" onclick="convertVND()" class="btn-submit">Chuyển đổi</button>
-    </div>
-    <p id="convert_result" class="convert-result"></p>
-</section>
+
 
 <style>
 /* Căn chung 2 form */
@@ -487,13 +433,6 @@ function convertVND() {
     background-color: #17a673;
 }
 
-/* Kết quả chuyển đổi tiền tệ */
-.convert-result {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    color: #d84315;
-}
 
 /* Responsive nhỏ */
 @media (max-width: 600px) {
@@ -666,7 +605,8 @@ function convertVND() {
         }
     </script>
 
-    
+   
+
 </body>
 
 </html>

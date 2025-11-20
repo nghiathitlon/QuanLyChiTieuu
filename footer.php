@@ -1,9 +1,5 @@
-<?php
-// footer.php
-?>
-</main>
-<footer style="background: #f4f4f4; padding: 15px; text-align: center; margin-top: 30px;">
-    <p>&copy; <?php echo date("Y"); ?> Ứng dụng Quản lý Chi tiêu.</p>
+<footer style="text-align:center; padding:20px; margin-top:40px; color:#555;">
+    © 2025 - Ứng dụng quản lý chi tiêu
 </footer>
 </body>
 </html>
