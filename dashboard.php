@@ -7,8 +7,11 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require 'db_connect.php';
+require 'currency.php';  
+
 $current_user_id = $_SESSION['user_id'];
 $current_username = $_SESSION['username'];
+
 
 // 1. LẤY SỐ LIỆU THỐNG KÊ TỔNG QUAN (cho tháng hiện tại)
 $current_month = date('Y-m'); // Lấy tháng hiện tại
@@ -194,15 +197,18 @@ $transactions_result = $conn->query("
     <section class="summary">
         <div class="summary-box">
             <h3>Tổng Thu (Tháng này)</h3>
-            <p class="income"><?php echo number_format($total_income); ?> VND</p>
+            <p class="income"><?php echo format_vnd_with_usd($total_income); ?></p>
+
         </div>
         <div class="summary-box">
             <h3>Tổng Chi (Tháng này)</h3>
-            <p class="expense"><?php echo number_format($total_expense); ?> VND</p>
+            <p class="expense"><?php echo format_vnd_with_usd($total_expense); ?></p>
+
         </div>
         <div class="summary-box">
             <h3>Số dư</h3>
-            <p class="balance"><?php echo number_format($balance); ?> VND</p>
+            <p class="balance"><?php echo format_vnd_with_usd($balance); ?></p>
+
         </div>
     </section>
 
@@ -212,14 +218,16 @@ $transactions_result = $conn->query("
         <div class="summary-box">
             <h3>Ngân sách tháng này</h3>
             <p style="color:#f57c00; font-weight:bold;">
-                <?php echo number_format($monthly_budget); ?> VND
+                <?php echo format_vnd_with_usd($monthly_budget); ?>
+
             </p>
         </div>
 
         <div class="summary-box">
             <h3>Đã chi / Ngân sách</h3>
             <p style="color:#d84315; font-weight:bold;">
-                <?php echo number_format($total_expense); ?> / <?php echo number_format($monthly_budget); ?> VND
+                <?php echo format_vnd_with_usd($total_expense); ?> / <?php echo format_vnd_with_usd($monthly_budget); ?>
+
             </p>
         </div>
 
@@ -295,7 +303,7 @@ $transactions_result = $conn->query("
             </form>
         </section>
 
-        <section style="margin:20px; padding:15px; border:1px solid #ccc;">
+<section style="margin:20px; padding:15px; border:1px solid #ccc;">
     <h2>Chuyển đổi VND → USD</h2>
 
     <input id="vnd_input" type="number" placeholder="Nhập số tiền VND" 
@@ -374,7 +382,7 @@ function convertVND() {
                         echo "<tr>";
                         echo "<td>" . $row['transaction_date'] . "</td>";
                         echo "<td>" . htmlspecialchars($row['category_name']) . "</td>";
-                        echo "<td>" . number_format($row['amount']) . " VND</td>";
+                        echo "<td>" . format_vnd_with_usd($row['amount']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['description']) . "</td>";
 
                         echo "<td>

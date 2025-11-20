@@ -31,3 +31,8 @@ function vnd_to_usd($vnd) {
     $rate = get_usd_rate();
     return $vnd / $rate;
 }
+
+function format_vnd_with_usd($vnd) {
+    $usd = vnd_to_usd($vnd);
+    return number_format($vnd) . " VND (≈ " . number_format($usd, 2) . " USD)";
+}
