@@ -15,6 +15,13 @@ require '../db_connect.php';
 $user_id = $_SESSION['user_id'];
 $amount = $_POST['amount'];
 $transaction_date = $_POST['date'];
+// Chỉ cho thêm trong tháng hiện tại
+$first_day = date("Y-m-01");
+$last_day  = date("Y-m-t");
+
+if ($transaction_date < $first_day || $transaction_date > $last_day) {
+    die("❌ Bạn chỉ có thể thêm giao dịch trong tháng hiện tại!");
+}
 $transaction_date = date('Y-m-d', strtotime($transaction_date));
 $category_id = $_POST['category_id'];
 $description = $_POST['description']; // Có thể trống

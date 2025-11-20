@@ -95,7 +95,7 @@ $username = $logged_in ? $_SESSION['username'] : '';
     <nav>
         <a href="index.php">Trang chủ</a>
         <a href="dashboard.php">Dashboard</a>
-        <a href="reports.php">Báo cáo</a>
+        <a href="reports.php">Xem lại chi tiêu</a>
         <a href="budget.php">Ngân sách</a>
         <?php if($logged_in): ?>
             <span class="user-info">Xin chào, <?= htmlspecialchars($username) ?></span>

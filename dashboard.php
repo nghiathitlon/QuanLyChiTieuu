@@ -12,9 +12,30 @@ require 'currency.php';
 $current_user_id = $_SESSION['user_id'];
 $current_username = $_SESSION['username'];
 
+/* ------------------------------
+   LẤY THÁNG/NĂM ĐƯỢC CHỌN
+------------------------------ */
 
-// 1. LẤY SỐ LIỆU THỐNG KÊ TỔNG QUAN (cho tháng hiện tại)
-$current_month = date('Y-m'); // Lấy tháng hiện tại
+// Nếu có GET → lấy GET
+$selected_month = isset($_GET['month']) ? intval($_GET['month']) : intval(date('m'));
+$selected_year  = isset($_GET['year'])  ? intval($_GET['year'])  : intval(date('Y'));
+
+// Format Y-m dùng cho SQL
+$selected_ym = $selected_year . '-' . str_pad($selected_month, 2, '0', STR_PAD_LEFT);
+
+/* ------------------------------
+   KIỂM TRA THÁNG HIỆN TẠI 
+------------------------------ */
+
+$current_year_num = intval(date('Y'));
+$current_month_num = intval(date('m'));
+$is_current_month = ($selected_month === $current_month_num && $selected_year === $current_year_num);
+
+
+
+
+// Chuẩn format Y-m dùng cho truy vấn
+$selected_ym = $selected_year . '-' . str_pad($selected_month, 2, '0', STR_PAD_LEFT);
 
 // Tính Tổng Thu nhập
 $income_result = $conn->query(
@@ -23,8 +44,9 @@ $income_result = $conn->query(
      JOIN Categories c ON t.category_id = c.category_id
      WHERE t.user_id = $current_user_id 
      AND c.type = 'income'
-     AND DATE_FORMAT(t.transaction_date, '%Y-%m') = '$current_month'"
+     AND DATE_FORMAT(t.transaction_date, '%Y-%m') = '$selected_ym'"
 );
+
 $total_income = $income_result->fetch_assoc()['total_income'] ?? 0;
 
 // Tính Tổng Chi tiêu
@@ -34,7 +56,7 @@ $expense_result = $conn->query(
      JOIN Categories c ON t.category_id = c.category_id
      WHERE t.user_id = $current_user_id 
      AND c.type = 'expense'
-     AND DATE_FORMAT(t.transaction_date, '%Y-%m') = '$current_month'"
+     AND DATE_FORMAT(t.transaction_date, '%Y-%m') = '$selected_ym'"
 );
 $total_expense = $expense_result->fetch_assoc()['total_expense'] ?? 0;
 
@@ -44,15 +66,15 @@ $balance = $total_income - $total_expense;
 /* ============================
    🔵 THÊM PHẦN NGÂN SÁCH THÁNG
    ============================ */
-$current_month_num = date('n');
-$current_year = date('Y');
+$current_month_num = $selected_month;
+$current_year = $selected_year;
 
 $budget_result = $conn->query("
     SELECT amount 
     FROM budget 
     WHERE user_id = $current_user_id
       AND month = $current_month_num
-      AND year = $current_year
+      AND year = $current_year_num
 ");
 
 $monthly_budget = 0;
@@ -92,10 +114,11 @@ $chart_data_result = $conn->query(
      JOIN Categories c ON t.category_id = c.category_id
      WHERE t.user_id = $current_user_id 
      AND c.type = 'expense'
-     AND DATE_FORMAT(t.transaction_date, '%Y-%m') = '$current_month'
+     AND DATE_FORMAT(t.transaction_date, '%Y-%m') = '$selected_ym'
      GROUP BY c.name
      ORDER BY total_amount DESC"
 );
+
 
 // Chuyển dữ liệu sang JS
 $chart_labels = [];
@@ -193,24 +216,63 @@ $transactions_result = $conn->query("
         </nav>
     </header>
 
-    <!-- ===== PHẦN TỔNG QUAN ===== -->
+    
+    <!-- PHẦN CHỌN THÁNG/NĂM & XEM LẠI CHI TIÊU -->
+<section style="margin:20px 0;">
+    <h2>Xem lại chi tiêu</h2>
+
+    <form method="GET" style="display:flex; gap:20px; align-items:flex-end; margin-bottom:20px;">
+        <div>
+            <label>Chọn tháng:</label>
+            <select name="month">
+                <?php for ($m = 1; $m <= 12; $m++): ?>
+                    <option value="<?= $m ?>" <?= ($m == $selected_month ? 'selected' : '') ?>>
+                        Tháng <?= $m ?>
+                    </option>
+                <?php endfor; ?>
+            </select>
+        </div>
+
+        <div>
+            <label>Chọn năm:</label>
+            <select name="year">
+                <?php for ($y = 2020; $y <= 2030; $y++): ?>
+                    <option value="<?= $y ?>" <?= ($y == $selected_year ? 'selected' : '') ?>>
+                        <?= $y ?>
+                    </option>
+                <?php endfor; ?>
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" style="padding:6px 12px; background:#1cc88a; color:white; border:none; border-radius:5px;">
+                Xem chi tiêu
+            </button>
+        </div>
+    </form>
+</section>
+
+
+    <!-- Phần tổng quan chi tiêu -->
     <section class="summary">
         <div class="summary-box">
-            <h3>Tổng Thu (Tháng này)</h3>
+            <h3>Tổng Thu</h3>
             <p class="income"><?php echo format_vnd_with_usd($total_income); ?></p>
-
         </div>
         <div class="summary-box">
-            <h3>Tổng Chi (Tháng này)</h3>
+            <h3>Tổng Chi</h3>
             <p class="expense"><?php echo format_vnd_with_usd($total_expense); ?></p>
-
         </div>
         <div class="summary-box">
             <h3>Số dư</h3>
             <p class="balance"><?php echo format_vnd_with_usd($balance); ?></p>
-
         </div>
     </section>
+
+    <!-- Phần ngân sách tháng, cảnh báo, biểu đồ,... -->
+</section>
+
+
 
 
     <!-- ⭐ THÊM PHẦN NGÂN SÁCH THÁNG -->
@@ -248,60 +310,76 @@ $transactions_result = $conn->query("
 
     <main class="content">
         <section class="add-transaction">
-            <h2>Thêm Chi tiêu</h2>
-            <form action="actions/action_add_transaction.php" method="POST">
-                <label>Số tiền:</label>
-                <input type="number" name="amount" require>
+            <?php if ($is_current_month): ?>
+    <!-- ======= FORM THÊM CHI TIÊU ======= -->
+    <section class="add-transaction">
+        <h2>Thêm Chi tiêu</h2>
+        <form action="actions/action_add_transaction.php" method="POST">
+            <label>Số tiền:</label>
+            <input type="number" name="amount" required>
 
-                <label>Ngày:</label>
-                <input type="date" name="date" required>
+            <label>Ngày:</label>
+            <input type="date" name="date" required>
 
-                <label>Danh mục:</label>
-                <select name="category_id" required>
-                    <option value="">-- Chọn danh mục --</option>
-                    <?php
-                    if ($expense_categories_result->num_rows > 0) {
-                        while ($row = $expense_categories_result->fetch_assoc()) {
-                            echo "<option value='{$row['category_id']}'>{$row['name']}</option>";
-                        }
+            <label>Danh mục:</label>
+            <select name="category_id" required>
+                <option value="">-- Chọn danh mục --</option>
+                <?php
+                if ($expense_categories_result->num_rows > 0) {
+                    while ($row = $expense_categories_result->fetch_assoc()) {
+                        echo "<option value='{$row['category_id']}'>{$row['name']}</option>";
                     }
-                    ?>
-                </select>
+                }
+                ?>
+            </select>
 
-                <label>Ghi chú:</label>
-                <textarea name="description"></textarea>
+            <label>Ghi chú:</label>
+            <textarea name="description"></textarea>
 
-                <button type="submit">Thêm Chi tiêu</button>
-            </form>
-        </section>
+            <button type="submit">Thêm Chi tiêu</button>
+        </form>
+    </section>
 
-        <section class="add-income" style="background-color: #f0f8ff;">
-            <h2>Thêm Thu nhập</h2>
-            <form action="actions/action_add_transaction.php" method="POST">
-                <label>Số tiền:</label>
-                <input type="number" name="amount" required>
+    <!-- ======= FORM THÊM THU NHẬP ======= -->
+    <section class="add-income" style="background-color: #f0f8ff;">
+        <h2>Thêm Thu nhập</h2>
+        <form action="actions/action_add_transaction.php" method="POST">
+            <label>Số tiền:</label>
+            <input type="number" name="amount" required>
 
-                <label>Ngày:</label>
-                <input type="date" name="date" required>
+            <label>Ngày:</label>
+            <input type="date" name="date" required>
 
-                <label>Danh mục:</label>
-                <select name="category_id" required>
-                    <option value="">-- Chọn danh mục --</option>
-                    <?php
-                    if ($income_categories_result->num_rows > 0) {
-                        while ($row = $income_categories_result->fetch_assoc()) {
-                            echo "<option value='{$row['category_id']}'>{$row['name']}</option>";
-                        }
+            <label>Danh mục:</label>
+            <select name="category_id" required>
+                <option value="">-- Chọn danh mục --</option>
+                <?php
+                if ($income_categories_result->num_rows > 0) {
+                    while ($row = $income_categories_result->fetch_assoc()) {
+                        echo "<option value='{$row['category_id']}'>{$row['name']}</option>";
                     }
-                    ?>
-                </select>
+                }
+                ?>
+            </select>
 
-                <label>Ghi chú:</label>
-                <textarea name="description"></textarea>
+            <label>Ghi chú:</label>
+            <textarea name="description"></textarea>
 
-                <button type="submit">Thêm Thu nhập</button>
-            </form>
-        </section>
+            <button type="submit">Thêm Thu nhập</button>
+        </form>
+    </section>
+
+<?php else: ?>
+
+    <!-- 🔒 KHÔNG CHO THÊM GIAO DỊCH -->
+    <div style="padding:20px; background:#ffe0e0; border-left:5px solid red; margin:20px;">
+        <h3>🔒 Không thể thêm giao dịch</h3>
+        <p>Bạn chỉ có thể thêm Thu nhập và Chi tiêu trong <strong>tháng hiện tại</strong>.</p>
+        <p>Hãy quay lại tháng <?= date("m") ?>/<?= date("Y") ?> để tiếp tục.</p>
+    </div>
+
+<?php endif; ?>
+
 
 <section style="margin:20px; padding:15px; border:1px solid #ccc;">
     <h2>Chuyển đổi VND → USD</h2>
