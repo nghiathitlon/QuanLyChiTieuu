@@ -1,11 +1,12 @@
 <?php
-require 'header.php';
+session_start();
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
 
+require 'header.php';
 require 'db_connect.php';
 require 'functions.php';  
 
@@ -202,13 +203,6 @@ $transactions_result = $conn->query("
 </head>
 
 <body>
-    <header>
-        <h1>Chào mừng, <?php echo htmlspecialchars($current_username); ?>!</h1>
-    </header>
-
-    
- 
-
     <!-- Phần tổng quan chi tiêu -->
     <section class="summary">
         <div class="summary-box">
