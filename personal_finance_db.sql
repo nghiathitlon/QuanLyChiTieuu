@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 21, 2025 at 11:57 AM
+-- Generation Time: Nov 22, 2025 at 09:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,7 +32,9 @@ CREATE TABLE `alerts` (
   `user_id` int(11) NOT NULL,
   `type` varchar(50) NOT NULL,
   `message` text NOT NULL,
+  `due_date` date NOT NULL,
   `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `is_done` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -57,7 +59,7 @@ CREATE TABLE `budget` (
 --
 
 INSERT INTO `budget` (`id`, `user_id`, `month`, `year`, `amount`, `created_at`, `updated_at`) VALUES
-(1, 5, 11, 2025, 3000000.00, '2025-11-19 17:38:09', '2025-11-19 17:45:10'),
+(1, 5, 11, 2025, 5000000.00, '2025-11-19 17:38:09', '2025-11-22 19:34:58'),
 (2, 5, 3, 2025, 3000000.00, '2025-11-20 07:56:46', '2025-11-20 19:36:35'),
 (5, 4, 4, 2025, 0.00, '2025-11-20 18:36:16', '2025-11-20 18:36:16');
 
@@ -91,7 +93,8 @@ INSERT INTO `categories` (`category_id`, `user_id`, `name`, `type`) VALUES
 (22, 4, 'an chieu', 'expense'),
 (24, 5, 'di choi', 'expense'),
 (25, 5, 'ban xe', 'income'),
-(26, 5, 'an toi', 'expense');
+(26, 5, 'an toi', 'expense'),
+(29, 5, 'mua do ve sinh du phong', 'expense');
 
 -- --------------------------------------------------------
 
@@ -107,6 +110,36 @@ CREATE TABLE `monthlybudget` (
   `amount` decimal(12,2) NOT NULL,
   `budget_amount` decimal(15,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reminders`
+--
+
+CREATE TABLE `reminders` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `remind_date` date NOT NULL,
+  `is_done` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `remind_time` time DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+--
+-- Dumping data for table `reminders`
+--
+
+INSERT INTO `reminders` (`id`, `user_id`, `title`, `description`, `remind_date`, `is_done`, `created_at`, `remind_time`) VALUES
+(1, 5, 'đóng tiền điện tháng 11', '2.000.000 VNĐ', '2025-11-24', 1, '2025-11-22 16:33:55', NULL),
+(2, 5, 'Đóng tiền nhà tháng 11', '700.000 VNĐ', '2025-11-22', 0, '2025-11-22 16:34:48', NULL),
+(3, 5, 'Đóng tiền quỹ lớp', '90.000 VNĐ', '2025-11-25', 1, '2025-11-22 16:41:46', NULL),
+(4, 5, 'Đóng tiền hụi cho anh 3 chợ gà', '790.000 VNĐ', '2025-11-27', 0, '2025-11-22 16:42:19', NULL),
+(6, 5, 'Đóng tiền ủng hộ mùa lũ 2025', '6.666.000VNĐ', '2025-11-24', 0, '2025-11-22 16:43:52', NULL),
+(7, 5, 'đóng học phí', '5.00.000', '2025-11-21', 1, '2025-11-22 19:49:31', NULL),
+(9, 5, 'học thêm', '200.000 VNĐ', '2025-11-23', 0, '2025-11-22 19:54:05', NULL);
 
 -- --------------------------------------------------------
 
@@ -140,11 +173,11 @@ INSERT INTO `transactions` (`transaction_id`, `user_id`, `type`, `category_id`, 
 (18, 4, NULL, 22, 199000.00, '2025-12-11', '', '2025-11-19 11:45:53'),
 (19, 4, NULL, 21, 199000.00, '2025-11-12', '', '2025-11-19 11:46:20'),
 (37, 5, NULL, 25, 10000000.00, '2025-11-01', 'lanh luong', '2025-11-19 17:55:09'),
-(39, 5, NULL, 24, 1100000.00, '2025-11-24', '', '2025-11-19 17:55:52'),
-(42, 5, NULL, 24, 800000.00, '2025-11-20', '', '2025-11-19 17:57:55'),
-(43, 5, NULL, 26, 1000000.00, '2025-11-20', '', '2025-11-19 17:59:17'),
-(44, 5, NULL, 25, 5000000.00, '2025-11-05', '', '2025-11-20 06:52:26'),
-(45, 5, NULL, 25, 100000.00, '2025-11-05', '', '2025-11-20 07:14:47');
+(39, 5, NULL, 24, 1800000.00, '2025-11-24', '0', '2025-11-19 17:55:52'),
+(42, 5, NULL, 24, 4000000.00, '2025-11-22', '0', '2025-11-19 17:57:55'),
+(44, 5, NULL, 25, 3000000.00, '2025-11-05', '0', '2025-11-20 06:52:26'),
+(45, 5, NULL, 25, 1000000.00, '2025-11-05', '', '2025-11-20 07:14:47'),
+(47, 5, NULL, 29, 300000.00, '2025-11-26', '0', '2025-11-22 19:44:45');
 
 -- --------------------------------------------------------
 
@@ -169,7 +202,7 @@ INSERT INTO `users` (`user_id`, `email`, `username`, `password_hash`, `created_a
 (2, '123@gmail.com', '123', '$2y$10$wp/.7Y8c13v8B3V8ug/rB.GigYbqatezXCrUTQvNeIPIzpJ4.GkVC', '2025-11-14 08:03:29'),
 (3, 'teobuong89@gmail.com', 'Tèo', '$2y$10$Qtbqn0PaaG7tJy9iGeP.VuTHY7S.KKGlC/CzWInnSXzWxTty6vhWe', '2025-11-14 08:30:35'),
 (4, 'orionkid93@gmail.com', '64132410', '$2y$10$XTK56.Hm0QBkGCY7lLGxiuE4OtlerX3oP7VhAVVa5A0FyYJt4x/XG', '2025-11-19 10:45:10'),
-(5, 'thuan.vln.64cntt@ntu.edu.vn', 'Thuan', '$2y$10$QTZN6jF4TLwNGN5DpNaiRuMCmSqVXG61gNN5dLQxVfynVciRsTq6O', '2025-11-19 14:04:09');
+(5, 'thuan.vln.64cntt@ntu.edu.vn', 'Thuann ne', '$2y$10$4mwvM1RXw/vhTdf6G3NF4e9mMfARRHok835t2Bxptv6hEQ5dp7ySK', '2025-11-19 14:04:09');
 
 --
 -- Indexes for dumped tables
@@ -202,6 +235,13 @@ ALTER TABLE `categories`
 ALTER TABLE `monthlybudget`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unq_budget` (`user_id`,`month`,`year`);
+
+--
+-- Indexes for table `reminders`
+--
+ALTER TABLE `reminders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `transactions`
@@ -238,7 +278,7 @@ ALTER TABLE `budget`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `monthlybudget`
@@ -247,10 +287,16 @@ ALTER TABLE `monthlybudget`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `reminders`
+--
+ALTER TABLE `reminders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -279,6 +325,12 @@ ALTER TABLE `budget`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `reminders`
+--
+ALTER TABLE `reminders`
+  ADD CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `transactions`
