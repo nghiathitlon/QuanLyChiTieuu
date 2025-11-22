@@ -1,24 +1,29 @@
 <?php
 session_start();
-require '../db_connect.php';
+require __DIR__ . '/../db_connect.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
-$title = $_POST['title'];
-$reminder_date = $_POST['reminder_date'];
-$note = $_POST['note'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = $_SESSION['user_id'];
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $remind_date = $_POST['remind_date'];
 
-$sql = "INSERT INTO reminders (user_id, title, reminder_date, note)
-        VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare("INSERT INTO reminders (user_id, title, description, remind_date) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("isss", $user_id, $title, $description, $remind_date);
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("isss", $user_id, $title, $reminder_date, $note);
-$stmt->execute();
-
-header("Location: ../dashboard.php");
-exit;
+    header("Location: ../dashboard.php?status=reminder_added");
+    exit;
+}
 ?>
