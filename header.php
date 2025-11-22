@@ -118,6 +118,7 @@ $username = $logged_in ? $_SESSION['username'] : '';
         <a href="javascript:void(0)" onclick="toggleConverter()">Chuyển đổi tiền</a>
 
         <?php if($logged_in): ?>
+            <a href="profile.php">Thông tin cá nhân</a>
             <a href="actions/action_logout.php">Đăng xuất</a>
         <?php else: ?>
             <a class="btn" href="login.php">Đăng nhập</a>
