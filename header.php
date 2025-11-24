@@ -1,6 +1,4 @@
 <?php
-// KHÔNG gọi session_start() ở đây.
-// Chỉ đọc session từ trang cha.
 $logged_in = isset($_SESSION['user_id']);
 $username = $logged_in ? $_SESSION['username'] : '';
 ?>
