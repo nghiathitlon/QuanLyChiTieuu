@@ -46,15 +46,15 @@ $status_text = $status_flag == 'overdue' ? '⚠️ Đến hạn' : ($status_flag
 $row_style = $status_flag == 'overdue' ? "style='background:#ffe0b2;'" : ($status_flag=='upcoming'?"style='background:#fff3e0;'":"");
 
 // Trả về dữ liệu cho JS
-$response = [
-    'success'=>true,
-    'id'=>$id,
-    'title'=>$title,
-    'description'=>$description,
-    'remind_date_formatted'=>date('d/m/Y', strtotime($remind_date)),
-    'status_text'=>$status_text,
-    'row_style'=>$row_style
-];
-
+echo json_encode([
+    "success" => true,
+    "id" => $id,
+    "title" => $title,
+    "description" => $description,
+    "remind_date_formatted" => date('d/m/Y', strtotime($remind_date)),
+    "status_text" => $status_text,
+    "row_style" => $row_style
+]);
+exit;
 echo json_encode($response);
 ?>

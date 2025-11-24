@@ -205,7 +205,7 @@
     </head>
 
     <body>
-        
+    <main>
         <!-- Tổng quan -->
 <section class="summary">
     <div class="summary-box">
@@ -245,8 +245,6 @@
 <div id="budget-warning" style="margin:15px; padding:12px; background:#ffe0b2; border-left:5px solid #f57c00; font-size:16px; <?php echo $budget_warning!="" ? "display:block;" : "display:none;"; ?>">
     <strong><?php echo $budget_warning; ?></strong>
 </div>
-
-</section>
         <!-- ======= FORM THÊM CHI TIÊU ======= -->
         <section class="add-transaction">
             <h2>Thêm Chi tiêu</h2>
@@ -403,50 +401,58 @@
         </form>
 
     <script>
-    $(document).ready(function(){
-        $('#reminder-form').submit(function(e){
-    e.preventDefault(); 
-    $.ajax({
-        url: 'actions/action_add_or_edit_reminder.php',
-        method: 'POST',
-        data: $(this).serialize(),
-        dataType: 'json',
-        success: function(res){
-    if(res.success){
-        let rowHtml = `
-            <tr ${res.row_style}>
-                <td>${res.title}</td>
-                <td>${res.description}</td>
-                <td>${res.remind_date_formatted}</td>
-                <td>${res.status_text}</td>
-                <td>
-                    <a href="#" class="edit-reminder-form" data-id="${res.id}">Sửa</a>
-                    <a href="actions/action_delete_reminder.php?id=${res.id}" 
-                       onclick="return confirm('Bạn có chắc chắn muốn xóa ghi chú này?')">Xóa</a>
-                </td>
-            </tr>
-        `;
+$(document).ready(function() {
 
-        if($('#reminder-form input[name="id"]').length > 0){
-            $(`tr:has(a.edit-reminder-form[data-id='${res.id}'])`).replaceWith(rowHtml);
-            $('#reminder-form')[0].reset();
-            $('#reminder-form input[name="id"]').remove();
-        } else {
-            $('.reminder-list tbody').prepend(rowHtml);
-            $('#reminder-form')[0].reset(); 
-        }
-    } else {
-        alert(res.message || 'Lỗi lưu ghi chú!');
-    }
-}
-,
-        error: function(){
-            alert('Lỗi kết nối server!');
-        }
+    $("#reminder-form").submit(function(e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: "actions/action_add_or_edit_reminder.php",
+            type: "POST",
+            data: $(this).serialize(),
+            dataType: "json",
+            success: function(res) {
+
+                if (!res.success) {
+                    alert(res.message || "Lỗi không xác định!");
+                    return;
+                }
+
+                // Tạo hàng HTML mới
+                let rowHtml = `
+                    <tr ${res.row_style}>
+                        <td>${res.title}</td>
+                        <td>${res.description}</td>
+                        <td>${res.remind_date_formatted}</td>
+                        <td>${res.status_text}</td>
+                        <td>
+                            <a href="dashboard.php?edit_id=${res.id}" class="edit-reminder-form">Sửa</a>
+                            <a href="actions/action_delete_reminder.php?id=${res.id}" onclick="return confirm('Bạn có muốn xóa?')">Xóa</a>
+                            <a href="actions/action_complete_reminder.php?id=${res.id}" onclick="return confirm('Hoàn thành?')" class="mark-done-link">Hoàn thành</a>
+                        </td>
+                    </tr>
+                `;
+
+                // Nếu là cập nhật → thay thế hàng cũ
+                if ($("input[name='id']").length > 0) {
+                    $(`tr:has(a.edit-reminder-form[data-id='${res.id}'])`).replaceWith(rowHtml);
+                    $("input[name='id']").remove(); 
+                } 
+                else {
+                    $(".reminder-tbody").prepend(rowHtml);
+                }
+
+                $("#reminder-form")[0].reset();
+            },
+            error: function() {
+                alert("Lỗi kết nối server!");
+            }
+        });
     });
-});
 
-    </script>
+});
+</script>
+
 
     </section>
 
@@ -464,7 +470,8 @@
                     <th>Hành động</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="reminder-tbody">
+
                 <?php
                 if ($reminders_result->num_rows > 0) {
                     while ($row = $reminders_result->fetch_assoc()) {

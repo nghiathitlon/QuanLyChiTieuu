@@ -1,7 +1,5 @@
 <?php
-// actions/action_update_transaction.php
 session_start();
-
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../login.php");
     exit;
@@ -9,37 +7,47 @@ if (!isset($_SESSION['user_id'])) {
 
 require '../db_connect.php';
 
-// 1. Lấy dữ liệu từ form
+// Lấy dữ liệu an toàn từ form
 $user_id = $_SESSION['user_id'];
-$transaction_id = $_POST['transaction_id'];
-$amount = $_POST['amount'];
-$transaction_date = $_POST['date'];
-$category_id = $_POST['category_id'];
-$description = $_POST['description'];
+$transaction_id = isset($_POST['transaction_id']) ? intval($_POST['transaction_id']) : 0;
+$amount = isset($_POST['amount']) ? floatval($_POST['amount']) : 0;
+$category_id = isset($_POST['category_id']) ? intval($_POST['category_id']) : 0;
+$description = isset($_POST['description']) ? trim($_POST['description']) : '';
+$transaction_date = isset($_POST['date']) ? $_POST['date'] : '';
 
-// 2. Kiểm tra dữ liệu
-if (!is_numeric($transaction_id) || !is_numeric($category_id) || $amount <= 0) {
-    die("Dữ liệu không hợp lệ.");
+// Validate cơ bản
+if ($transaction_id <= 0 || $category_id <= 0 || $amount <= 0) {
+    die("❌ Dữ liệu không hợp lệ.");
 }
 
-// Bảo mật: Thêm "AND user_id = ?" để đảm bảo user này chỉ update được giao dịch của chính họ
+// Chuyển transaction_date về định dạng MySQL (YYYY-MM-DD)
+$date_obj = DateTime::createFromFormat('Y-m-d', $transaction_date);
+if (!$date_obj) {
+    // Nếu người dùng gửi dd/mm/yyyy
+    $date_obj = DateTime::createFromFormat('d/m/Y', $transaction_date);
+}
+if (!$date_obj) {
+    die("❌ Ngày giao dịch không hợp lệ.");
+}
+$transaction_date = $date_obj->format('Y-m-d');
+
+// Chuẩn bị statement
 $stmt = $conn->prepare("
-    UPDATE Transactions 
+    UPDATE transactions 
     SET amount = ?, transaction_date = ?, category_id = ?, description = ?
     WHERE transaction_id = ? AND user_id = ?
 ");
 
-// "dsisii" -> double, string, integer, string, integer, integer
-$stmt->bind_param("dsisii", $amount, $transaction_date, $category_id, $description, $transaction_id, $user_id);
+// Kiểu dữ liệu: d = double, s = string, i = integer
+$stmt->bind_param("dssisi", $amount, $transaction_date, $category_id, $description, $transaction_id, $user_id);
 
-// 4. Thực thi và chuyển hướng
+// Thực thi
 if ($stmt->execute()) {
-    // Cập nhật thành công, quay về dashboard
+    // Thành công
     header("Location: ../dashboard.php");
     exit;
 } else {
-    // Thất bại
-    echo "Lỗi: " . $stmt->error;
+    echo "❌ Lỗi khi cập nhật giao dịch: " . $stmt->error;
 }
 
 $stmt->close();
