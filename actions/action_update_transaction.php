@@ -34,12 +34,19 @@ $transaction_date = $date_obj->format('Y-m-d');
 // Chuẩn bị statement
 $stmt = $conn->prepare("
     UPDATE transactions 
-    SET amount = ?, transaction_date = ?, category_id = ?, description = ?
+    SET amount=?, transaction_date=?, category_id=?, note=?
     WHERE transaction_id = ? AND user_id = ?
 ");
 
-// Kiểu dữ liệu: d = double, s = string, i = integer
-$stmt->bind_param("dssisi", $amount, $transaction_date, $category_id, $description, $transaction_id, $user_id);
+$stmt->bind_param("dsissi", 
+    $amount, 
+    $transaction_date, 
+    $category_id, 
+    $description, 
+    $transaction_id, 
+    $user_id
+);
+
 
 // Thực thi
 if ($stmt->execute()) {

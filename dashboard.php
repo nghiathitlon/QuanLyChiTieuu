@@ -435,7 +435,7 @@ $(document).ready(function() {
 
                 // Nếu là cập nhật → thay thế hàng cũ
                 if ($("input[name='id']").length > 0) {
-                    $(`tr:has(a.edit-reminder-form[data-id='${res.id}'])`).replaceWith(rowHtml);
+                    $(`tr:has(a.edit-reminder-form[data-id="${res.id}"])`).replaceWith(rowHtml);
                     $("input[name='id']").remove(); 
                 } 
                 else {
@@ -506,14 +506,21 @@ $(document).ready(function() {
                         echo "<td>" . date('d/m/Y', strtotime($row['remind_date'])) . "</td>";
                         echo "<td>$status_text</td>";
                         echo "<td>
-                            <a href='dashboard.php?edit_id=" . $row['id'] . "' class='edit-reminder-form'>Sửa</a>
+                            <a href='dashboard.php?edit_id=" . $row['id'] . "' 
+                                class='edit-reminder-form' 
+                                data-id='" . $row['id'] . "'>Sửa</a>
+
                             <a href='actions/action_delete_reminder.php?id=" . $row['id'] . "' 
-                            onclick='return confirm(\"Bạn có chắc chắn muốn xóa ghi chú này?\")' 
-                            class='delete-btn'>Xóa</a>
+                                onclick='return confirm(\"Bạn có chắc chắn muốn xóa ghi chú này?\")' 
+                                class='delete-btn'>Xóa</a>
+
                             <a href='actions/action_complete_reminder.php?id=" . $row['id'] . "' 
-                            class='mark-done-link' 
-                            onclick=\"return confirm('Đánh dấu nhắc nhở này là hoàn thành?')\">Hoàn thành</a>
+                                class='mark-done-link' 
+                                onclick=\"return confirm('Đánh dấu nhắc nhở này là hoàn thành?')\">
+                                Hoàn thành
+                            </a>
                         </td>";
+
 
 
 
@@ -823,8 +830,8 @@ $(document).ready(function() {
                     }
 
                     alert('Cập nhật giao dịch thành công!');
-                    location.reload();
                     $('.edit-transaction').hide();
+                    location.reload();
                 } else {
                     alert(res.message || 'Lỗi cập nhật giao dịch!');
                 }
