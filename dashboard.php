@@ -55,8 +55,18 @@
     );
     $total_expense = $expense_result->fetch_assoc()['total_expense'] ?? 0;
 
-    // Tính Số dư
-    $balance = $total_income - $total_expense;
+    // Tổng quỹ tiết kiệm trong tháng
+    $savings_result = $conn->query("
+        SELECT SUM(amount) AS total_savings
+        FROM savings
+        WHERE user_id = $current_user_id
+        AND DATE_FORMAT(created_at, '%Y-%m') = '$selected_ym'
+    ");
+    $total_savings = $savings_result->fetch_assoc()['total_savings'] ?? 0;
+
+    // Số dư thực tế = Tổng thu - Tổng chi - Quỹ tiết kiệm
+$balance = $total_income - $total_expense - $total_savings;
+
 
     /* ============================
     🔵 THÊM PHẦN NGÂN SÁCH THÁNG
@@ -83,20 +93,24 @@
 
 
 
-    // TÍNH % CHI TIÊU
-    $used_percent = $monthly_budget > 0 ? round(($total_expense / $monthly_budget) * 100) : 0;
+   // Tổng chi = chi tiêu + quỹ tiết kiệm
+$total_expense_with_savings = $total_expense + $total_savings;
 
-    // TẠO NHẮC NHỞ
-    $budget_warning = "";
-    if ($monthly_budget > 0) {
-        if ($total_expense > $monthly_budget) {
-            $budget_warning = "⚠️ Bạn đã vượt ngân sách tháng!";
-        } elseif ($used_percent >= 90) {
-            $budget_warning = "🔴 Cảnh báo! Bạn đã dùng $used_percent% ngân sách.";
-        } elseif ($used_percent >= 70) {
-            $budget_warning = "🟡 Bạn đã dùng $used_percent% ngân sách, hãy cẩn thận!";
-        }
+// % ngân sách
+$used_percent = $monthly_budget > 0 ? round(($total_expense_with_savings / $monthly_budget) * 100) : 0;
+
+// Cảnh báo ngân sách
+$budget_warning = "";
+if ($monthly_budget > 0) {
+    if ($total_expense_with_savings > $monthly_budget) {
+        $budget_warning = "⚠️ Bạn đã vượt ngân sách tháng!";
+    } elseif ($used_percent >= 90) {
+        $budget_warning = "🔴 Cảnh báo! Bạn đã dùng $used_percent% ngân sách.";
+    } elseif ($used_percent >= 70) {
+        $budget_warning = "🟡 Bạn đã dùng $used_percent% ngân sách, hãy cẩn thận!";
     }
+}
+
 
     /* ============================
     HẾT PHẦN NGÂN SÁCH - CẢNH BÁO
@@ -124,8 +138,13 @@
             $chart_values[] = $row['total_amount'];
         }
     }
-    $js_chart_labels = json_encode($chart_labels);
-    $js_chart_values = json_encode($chart_values);
+    if($total_savings > 0){
+    $chart_labels[] = "Quỹ tiết kiệm";
+    $chart_values[] = $total_savings;
+}
+
+$js_chart_labels = json_encode($chart_labels);
+$js_chart_values = json_encode($chart_values);
 
     // Dữ liệu form thêm giao dịch
     $categories_result = $conn->query("SELECT * FROM Categories WHERE user_id = $current_user_id AND type = 'expense'");
@@ -136,16 +155,7 @@
         "SELECT * FROM Categories WHERE user_id = $current_user_id AND type = 'income'"
     );
 
-    // Giao dịch gần đây
-    $transactions_result = $conn->query("
-        SELECT t.transaction_id, t.amount, t.transaction_date, t.description, 
-            c.name AS category_name, c.category_id
-        FROM Transactions t
-        JOIN Categories c ON t.category_id = c.category_id
-        WHERE t.user_id = $current_user_id
-        ORDER BY t.transaction_date DESC, t.transaction_id DESC
-        LIMIT 20
-    ");
+    
 
 
     ?>
@@ -210,17 +220,23 @@
 <section class="summary">
     <div class="summary-box">
         <h3>Tổng Thu</h3>
-        <p class="income" id="total-income"><?php echo format_vnd_with_usd($total_income); ?></p>
+        <p class="income"><?php echo format_vnd_with_usd($total_income); ?></p>
     </div>
     <div class="summary-box">
-        <h3>Tổng Chi</h3>
-        <p class="expense" id="total-expense"><?php echo format_vnd_with_usd($total_expense); ?></p>
+    <h3>Tổng Chi</h3>
+    <p class="expense"><?php echo format_vnd_with_usd($total_expense_with_savings); ?></p>
+</div>
+
+    <div class="summary-box">
+        <h3>Quỹ tiết kiệm</h3>
+        <p style="color:green; font-weight:bold;"><?php echo format_vnd_with_usd($total_savings); ?></p>
     </div>
     <div class="summary-box">
         <h3>Số dư</h3>
-        <p class="balance" id="balance"><?php echo format_vnd_with_usd($balance); ?></p>
+        <p class="balance"><?php echo format_vnd_with_usd($balance); ?></p>
     </div>
 </section>
+
 
 <!-- Ngân sách tháng -->
 <section class="summary" style="margin-top: 10px; background:#fff7e6; border:1px solid #ffcc80;">
@@ -232,8 +248,9 @@
     <div class="summary-box">
         <h3>Đã chi / Ngân sách</h3>
         <p style="color:#d84315; font-weight:bold;" id="expense-budget">
-            <?php echo format_vnd_with_usd($total_expense); ?> / <?php echo format_vnd_with_usd($monthly_budget); ?>
-        </p>
+    <?php echo format_vnd_with_usd($total_expense_with_savings); ?> / <?php echo format_vnd_with_usd($monthly_budget); ?>
+</p>
+
     </div>
 
     <div class="summary-box">
@@ -245,6 +262,125 @@
 <div id="budget-warning" style="margin:15px; padding:12px; background:#ffe0b2; border-left:5px solid #f57c00; font-size:16px; <?php echo $budget_warning!="" ? "display:block;" : "display:none;"; ?>">
     <strong><?php echo $budget_warning; ?></strong>
 </div>
+<!--  FORM TẠO QUỸ TIẾT KIỆM -->
+<section class="savings-form" style="margin:20px 0; padding:15px; border:1px solid #ccc; border-radius:8px; background:#f0fff0;">
+    <h2>Tạo Quỹ Tiết kiệm từ số dư còn lại</h2>
+    <form action="actions/action_create_savings.php" method="POST">
+        <p>Số dư còn lại: <strong><?php echo format_vnd_with_usd($balance); ?></strong></p>
+        <label>Số tiền muốn tạo quỹ tiết kiệm (VND):</label>
+        <input type="number" name="amount" min="1" value="100000" required>
+        <button type="submit" class="btn-submit">Tạo Quỹ Tiết kiệm</button>
+
+    </form>
+</section>
+
+<!--  DANH SÁCH QUỸ TIẾT KIỆM -->
+<section class="savings-list" style="margin-top:20px;">
+    <h2>Các quỹ tiết kiệm</h2>
+    <?php
+    $savings_result = $conn->query("SELECT * FROM savings WHERE user_id=$current_user_id ORDER BY created_at DESC");
+    if($savings_result->num_rows > 0){
+        echo "<table>
+                <thead>
+                    <tr>
+                        <th>Tên quỹ</th>
+                        <th>Số tiền</th>
+                        <th>Ngày tạo</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>";
+        while($row = $savings_result->fetch_assoc()){
+            echo "<tr>
+                    <td>".htmlspecialchars($row['name'])."</td>
+                    <td>".format_vnd_with_usd($row['amount'])."</td>
+                    <td>".date('d/m/Y', strtotime($row['created_at']))."</td>
+                    <td>
+                        <a href='dashboard.php?edit_saving_id={$row['id']}' class='edit-saving-btn' data-id='{$row['id']}' data-name='".htmlspecialchars($row['name'], ENT_QUOTES)."' data-amount='{$row['amount']}'>Sửa</a>
+                        <a href='actions/action_delete_saving.php?id={$row['id']}' onclick=\"return confirm('Bạn có chắc chắn muốn xóa quỹ này?')\">Xóa</a>
+                    </td>
+                  </tr>";
+        }
+        echo "</tbody></table>";
+    } else {
+        echo "<p>Chưa có quỹ tiết kiệm nào.</p>";
+    }
+    ?>
+</section>
+<section class="edit-saving-form" style="display:none; margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px; background:#f9f9f9;">
+    <h2>Sửa Quỹ Tiết kiệm</h2>
+    <form id="edit-saving-form" method="POST" action="actions/action_edit_saving.php">
+        <input type="hidden" name="id" id="edit_saving_id">
+        <div class="form-group">
+            <label>Tên quỹ:</label>
+            <input type="text" name="name" id="edit-saving-name" required>
+        </div>
+        <div class="form-group">
+            <label>Số tiền:</label>
+            <input type="number" name="amount" id="edit-saving-amount" required>
+        </div>
+        <button type="submit" class="btn-submit">Cập nhật</button>
+        <button type="button" id="cancel-edit-saving" class="btn-submit" style="background:#e74a3b;">Hủy</button>
+    </form>
+</section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+
+    // Mở form sửa khi click nút Edit
+    $(document).on('click', '.edit-saving-btn', function(e){
+        e.preventDefault();
+        let id = $(this).data('id');
+        let name = $(this).data('name');
+        let amount = $(this).data('amount');
+
+        $('#edit_saving_id').val(id);
+        $('#edit-saving-name').val(name);
+        $('#edit-saving-amount').val(amount);
+
+        $('.edit-saving-form').slideDown();
+        $('html, body').animate({ scrollTop: $('.edit-saving-form').offset().top }, 300);
+    });
+
+    // Hủy form
+    $('#cancel-edit-saving').click(function(){
+        $('.edit-saving-form').slideUp();
+        $('#edit-saving-form')[0].reset();
+    });
+
+    // Submit form bằng AJAX
+    $('#edit-saving-form').submit(function(e){
+        e.preventDefault(); // Ngăn reload
+        let formData = $(this).serialize();
+
+        $.ajax({
+            url: 'actions/action_edit_saving.php',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function(res){
+                if(res.success){
+                    alert('Cập nhật thành công!');
+                    $('.edit-saving-form').slideUp();
+                    $('#edit-saving-form')[0].reset();
+                    // Nếu bạn có bảng hiển thị quỹ, cập nhật trực tiếp hoặc reload phần bảng:
+                    location.reload(); // hoặc dùng JS để update row
+                } else {
+                    alert('Lỗi: '+res.message);
+                }
+            },
+            error: function(){
+                alert('Có lỗi xảy ra!');
+            }
+        });
+    });
+
+});
+</script>
+
+
+
         <!-- ======= FORM THÊM CHI TIÊU ======= -->
         <section class="add-transaction">
             <h2>Thêm Chi tiêu</h2>
@@ -707,18 +843,62 @@ $(document).ready(function() {
         </form>
     </section>
 
-        <h2>Giao dịch gần đây</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ngày</th>
-                        <th>Danh mục</th>
-                        <th>Số tiền</th>
-                        <th>Ghi chú</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
+         <h2>Giao dịch gần đây</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                    <th>Ngày</th>
+                    <th>Danh mục</th>
+                    <th>Loại</th> 
+                    <th>Số tiền</th>
+                    <th>Ghi chú</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $transactions_result = $conn->query("
+                    SELECT t.transaction_id, t.amount, t.transaction_date, t.description, 
+                           c.name AS category_name, c.category_id, c.type AS transaction_type
+                    FROM Transactions t
+                    JOIN Categories c ON t.category_id = c.category_id
+                    WHERE t.user_id = $current_user_id
+                    ORDER BY t.transaction_date DESC, t.transaction_id DESC
+                    LIMIT 20
+                ");
+
+                if ($transactions_result->num_rows > 0) {
+                    while ($row = $transactions_result->fetch_assoc()) {
+                        $type_label = $row['transaction_type'] === 'income' ? 'Thu' : 'Chi';
+                        echo "<tr>";
+                        echo "<td>" . date('d/m/Y', strtotime($row['transaction_date'])) . "</td>"; // Ngày
+                        echo "<td>" . htmlspecialchars($row['category_name']) . "</td>"; // Danh mục
+                        echo "<td>$type_label</td>"; // Loại
+                        echo "<td>" . format_vnd_with_usd($row['amount']) . "</td>"; // Số tiền
+                        echo "<td>" . htmlspecialchars($row['description']) . "</td>"; // Ghi chú
+                        echo "<td>
+                                <a href=\"#\" class=\"edit-transaction-btn\" 
+                                data-id=\"{$row['transaction_id']}\" 
+                                data-amount=\"{$row['amount']}\" 
+                                data-date=\"{$row['transaction_date']}\" 
+                                data-category=\"{$row['category_id']}\" 
+                                data-description=\"".htmlspecialchars($row['description'], ENT_QUOTES)."\">
+                                Sửa
+                                </a>
+                                <a href=\"actions/action_delete_transaction.php?id={$row['transaction_id']}\"  
+                                onclick=\"return confirm('Bạn có chắc chắn muốn xóa giao dịch này?')\" 
+                                class=\"delete-btn\">Xóa</a>
+                            </td>";
+                        echo "</tr>";
+
+                    }
+                } else {
+                    echo "<tr><td colspan='6' class='no-data'>Chưa có giao dịch nào.</td></tr>";
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 
@@ -730,30 +910,44 @@ $(document).ready(function() {
     const ctx = document.getElementById('expensePieChart').getContext('2d');
     const labels = <?php echo $js_chart_labels; ?>;
     const dataValues = <?php echo $js_chart_values; ?>;
-    if(labels.length > 0){
-        expensePieChart = new Chart(ctx,{
-            type:'pie',
-            data:{
-                labels: labels,
-                datasets:[{
-                    label:'Chi tiêu',
-                    data: dataValues,
-                    backgroundColor:[
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 206, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)',
-                        'rgba(255, 159, 64, 0.8)'
-                    ]
-                }]
+   if(labels.length > 0){
+    expensePieChart = new Chart(ctx,{
+        type:'pie',
+        data:{
+            labels: labels,
+            datasets:[{
+                label:'Chi tiêu',
+                data: dataValues,
+                backgroundColor:[
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 159, 64, 0.8)'
+                ]
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{
+                legend:{ position:'bottom' },
+                tooltip:{
+                    callbacks:{
+                        label:function(context){
+                            return context.label + ': ' + Number(context.raw).toLocaleString() + ' VND';
+                        }
+                    }
+                }
             }
-        });
-    } else {
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Không có dữ liệu chi tiêu tháng này', 150, 100);
-    }
+        }
+    });
+} else {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Không có dữ liệu chi tiêu tháng này', ctx.canvas.width/2, ctx.canvas.height/2);
+}
 
     // Click Sửa giao dịch
     $(document).on('click', '.edit-transaction-btn', function(e){
@@ -804,7 +998,7 @@ $(document).ready(function() {
                     $('#balance').html(Number(res.balance).toLocaleString() + ' VND (' + (res.balance/23000).toFixed(2) + ' USD)');
 
                     $('#monthly-budget').html(Number(res.monthly_budget).toLocaleString() + ' VND (' + (res.monthly_budget/23000).toFixed(2) + ' USD)');
-                    $('#expense-budget').html(Number(res.total_expense).toLocaleString() + ' / ' + Number(res.monthly_budget).toLocaleString() + ' VND');
+                    $('#expense-budget').html(Number(res.total_expense + res.total_savings).toLocaleString() + ' / ' + Number(res.monthly_budget).toLocaleString() + ' VND');
 
                     $('#budget-progress').text(res.used_percent + '%');
                     if(res.used_percent >= 90){
@@ -844,36 +1038,6 @@ $(document).ready(function() {
 
 });
 </script>
-
-                <tbody>
-                    <?php
-                    if ($transactions_result->num_rows > 0) {
-                        while ($row = $transactions_result->fetch_assoc()) {
-                            echo "<tr>";
-                            echo "<td>" . date('d/m/Y', strtotime($row['transaction_date'])) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['category_name']) . "</td>";
-                            echo "<td>" . format_vnd_with_usd($row['amount']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-                            echo "<td>
-                                <a href=\"#\" class=\"edit-transaction-btn\" 
-                                data-id=\"{$row['transaction_id']}\" 
-                                data-amount=\"{$row['amount']}\" 
-                                data-date=\"{$row['transaction_date']}\" 
-                                data-category=\"{$row['category_id']}\" 
-                                data-description=\"".htmlspecialchars($row['description'], ENT_QUOTES)."\">
-                                Sửa
-                                </a>
-                                <a href=\"actions/action_delete_transaction.php?id={$row['transaction_id']}\"  
-                                onclick=\"return confirm('Bạn có chắc chắn muốn xóa giao dịch này?')\" 
-                                class=\"delete-btn\">Xóa</a>
-                            </td>";
-
-                        }
-                    } else {
-                        echo "<tr><td colspan='5' class='no-data'>Chưa có giao dịch nào.</td></tr>";
-                    }
-                    ?>
-                </tbody>
             </table>
         </div>
     </section>

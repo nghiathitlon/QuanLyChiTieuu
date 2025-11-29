@@ -1,18 +1,17 @@
 <?php
-// budget.php
 session_start();
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
 }
+
 require 'db_connect.php';
+require 'functions.php';
 
 $user_id = $_SESSION['user_id'];
 $message = '';
 
-// --------------------------
-// XỬ LÝ CHỌN THÁNG/NĂM
-// --------------------------
+// Lấy tháng/năm được chọn
 if (isset($_GET['month_year'])) {
     list($selected_year, $selected_month) = explode('-', $_GET['month_year']);
     $selected_month = (int)$selected_month;
@@ -22,9 +21,7 @@ if (isset($_GET['month_year'])) {
     $selected_year  = (int)date('Y');
 }
 
-// --------------------------
-// CẬP NHẬT NGÂN SÁCH
-// --------------------------
+// Cập nhật ngân sách
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'], $_POST['month_year'])) {
     $amount = floatval($_POST['amount']);
     list($month, $year) = explode('-', $_POST['month_year']);
@@ -34,31 +31,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'], $_POST['mon
     if ($amount < 0) {
         $message = "<p style='color:red;'>Ngân sách phải >= 0</p>";
     } else {
+        // Cập nhật bảng budget
         $stmt = $conn->prepare("
             INSERT INTO budget (user_id, month, year, amount)
             VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE amount = VALUES(amount), updated_at = CURRENT_TIMESTAMP
         ");
         $stmt->bind_param("iiid", $user_id, $month, $year, $amount);
-        if ($stmt->execute()) {
-            header("Location: budget.php?month_year={$year}-" . str_pad($month, 2, '0', STR_PAD_LEFT) . "&success=1");
-            exit;
-        } else {
-            $message = "<p style='color:red;'>Lỗi: " . htmlspecialchars($stmt->error) . "</p>";
-        }
+        $stmt->execute();
         $stmt->close();
+
+        // Cập nhật giao dịch "Quỹ ngân sách" (category_id = 0)
+        $transaction_date = "$year-" . str_pad($month,2,'0',STR_PAD_LEFT) . "-01";
+        $stmt2 = $conn->prepare("
+            INSERT INTO transactions (user_id, category_id, transaction_date, amount, description)
+            VALUES (?, 0, ?, ?, 'Quỹ ngân sách')
+            ON DUPLICATE KEY UPDATE amount = VALUES(amount)
+        ");
+        $stmt2->bind_param("isd", $user_id, $transaction_date, $amount);
+        $stmt2->execute();
+        $stmt2->close();
+
+        header("Location: budget.php?month_year={$year}-" . str_pad($month,2,'0',STR_PAD_LEFT) . "&success=1");
+        exit;
     }
 }
 
-// Nếu có thông báo thành công từ GET
+// Thông báo thành công
 if (isset($_GET['success'])) {
     $message = "<p style='color:green;'>Đã cập nhật ngân sách cho $selected_month/$selected_year</p>";
 }
 
-// --------------------------
-// LẤY NGÂN SÁCH HIỆN TẠI
-// --------------------------
-$stmt = $conn->prepare("SELECT amount FROM budget WHERE user_id = ? AND month = ? AND year = ?");
+// Lấy ngân sách hiện tại
+$stmt = $conn->prepare("SELECT amount FROM budget WHERE user_id=? AND month=? AND year=?");
 $stmt->bind_param("iii", $user_id, $selected_month, $selected_year);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -68,121 +73,96 @@ if ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-// --------------------------
-// TÍNH TỔNG THU/CHI
-// --------------------------
-$stmt2 = $conn->prepare("
-    SELECT COALESCE(SUM(t.amount),0) AS total_spent
+// Tính tổng thu/chi (bao gồm quỹ ngân sách)
+$stmt = $conn->prepare("
+    SELECT 
+        SUM(CASE WHEN c.type='income' THEN t.amount ELSE 0 END) AS total_income,
+        SUM(CASE WHEN c.type='expense' THEN t.amount ELSE 0 END) AS total_spent
     FROM transactions t
-    JOIN categories c ON t.category_id = c.category_id
-    WHERE t.user_id = ?
-      AND c.type = 'expense'
-      AND MONTH(t.transaction_date) = ?
-      AND YEAR(t.transaction_date) = ?
+    LEFT JOIN categories c ON t.category_id = c.category_id
+    WHERE t.user_id=? AND MONTH(t.transaction_date)=? AND YEAR(t.transaction_date)=?
 ");
+$stmt->bind_param("iii", $user_id, $selected_month, $selected_year);
+$stmt->execute();
+$res = $stmt->get_result()->fetch_assoc();
+$total_income = floatval($res['total_income']);
+$total_spent  = floatval($res['total_spent']);
+$stmt->close();
 
-$stmt3 = $conn->prepare("
-    SELECT COALESCE(SUM(t.amount),0) AS total_income
-    FROM transactions t
-    JOIN categories c ON t.category_id = c.category_id
-    WHERE t.user_id = ?
-      AND c.type = 'income'
-      AND MONTH(t.transaction_date) = ?
-      AND YEAR(t.transaction_date) = ?
-");
+// Lấy tổng quỹ tiết kiệm (nếu có bảng savings)
+$stmt = $conn->prepare("SELECT SUM(amount) AS total_savings FROM savings WHERE user_id=? AND MONTH(created_at)=? AND YEAR(created_at)=?");
+$stmt->bind_param("iii", $user_id, $selected_month, $selected_year);
+$stmt->execute();
+$res2 = $stmt->get_result()->fetch_assoc();
+$total_savings = floatval($res2['total_savings'] ?? 0);
+$stmt->close();
 
-// Tổng thu
-$stmt3->bind_param("iii", $user_id, $selected_month, $selected_year);
-$stmt3->execute();
-$res3 = $stmt3->get_result();
-$total_income = 0;
-if ($r3 = $res3->fetch_assoc()) $total_income = floatval($r3['total_income']);
-$stmt3->close();
+// Tổng chi bao gồm quỹ tiết kiệm
+$total_expense_with_savings = $total_spent + $total_savings;
 
-// Tổng chi
-$stmt2->bind_param("iii", $user_id, $selected_month, $selected_year);
-$stmt2->execute();
-$res2 = $stmt2->get_result();
-$total_spent = 0;
-if ($r2 = $res2->fetch_assoc()) $total_spent = floatval($r2['total_spent']);
-$stmt2->close();
+// Số dư = tổng thu - tổng chi
+$balance = $total_income - $total_expense_with_savings;
 
 $conn->close();
-?>
 
-<?php require 'header.php'; ?>
+require 'header.php';
+?>
 
 <main style="padding:20px">
     <h2>Ngân sách tháng</h2>
-    <?php echo $message; ?>
+    <?= $message ?>
 
     <!-- FORM CHỌN THÁNG -->
     <form method="GET" action="" style="margin-bottom:20px;">
         <label for="month_year">Chọn tháng:</label>
         <input type="month" id="month_year" name="month_year"
-               value="<?php echo $selected_year . '-' . str_pad($selected_month, 2, '0', STR_PAD_LEFT); ?>"
+               value="<?= $selected_year . '-' . str_pad($selected_month,2,'0',STR_PAD_LEFT) ?>"
                required>
         <button type="submit">Xem</button>
     </form>
 
     <!-- FORM CẬP NHẬT NGÂN SÁCH -->
     <form method="POST" action="" style="max-width:500px;">
-        <input type="hidden" name="month_year" value="<?php echo $selected_year . '-' . str_pad($selected_month, 2, '0', STR_PAD_LEFT); ?>">
+        <input type="hidden" name="month_year" value="<?= $selected_year . '-' . str_pad($selected_month,2,'0',STR_PAD_LEFT) ?>">
         <label>Ngân sách (VND):</label><br>
-        <input type="number" name="amount" value="<?php echo htmlspecialchars($current_budget); ?>" min="0" required style="width:200px;padding:6px;">
+        <input type="number" name="amount" value="<?= htmlspecialchars($current_budget) ?>" min="0" required style="width:200px;padding:6px;">
         <br><br>
         <button type="submit">Lưu ngân sách</button>
     </form>
 
     <hr>
 
-    <h3>Tổng quan tháng <?php echo "$selected_month / $selected_year"; ?></h3>
+    <h3>Tổng quan tháng <?= "$selected_month / $selected_year" ?></h3>
 
     <div style="display:flex; gap:20px; margin-top:15px; flex-wrap:wrap;">
         <div style="padding:15px; background:#fff8e1; border-left:5px solid #ffc107; border-radius:8px; min-width:260px;">
             <h4 style="margin:0;">📊 Tổng thu được tháng này</h4>
             <p style="margin:5px 0 0; font-size:18px; font-weight:bold; color:#d48806;">
-                <?php echo number_format($total_income); ?> VND
+                <?= number_format($total_income) ?> VND
             </p>
         </div>
 
         <div style="padding:15px; background:#e3f2fd; border-left:5px solid #2196f3; border-radius:8px; min-width:240px;">
             <h4 style="margin:0;">💰 Ngân sách</h4>
             <p style="margin:5px 0 0; font-size:18px; font-weight:bold;">
-                <?php echo number_format($current_budget); ?> VND
+                <?= number_format($current_budget) ?> VND
             </p>
         </div>
 
         <div style="padding:15px; background:#ffebee; border-left:5px solid #f44336; border-radius:8px; min-width:240px;">
-            <h4 style="margin:0;">📉 Đã chi</h4>
-            <p style="margin:5px 0 0; font-size:18px; font-weight:bold;">
-                <?php echo number_format($total_spent); ?> VND
+            <h4 style="margin:0;">Tổng Chi</h4>
+            <p style="margin:5px 0 0; font-size:18px; font-weight:bold; color:#c62828;">
+                <?= number_format($total_expense_with_savings) ?> VND
             </p>
         </div>
 
         <div style="padding:15px; background:#e8f5e9; border-left:5px solid #4caf50; border-radius:8px; min-width:240px;">
-            <h4 style="margin:0;">📦 Còn lại</h4>
-            <p style="margin:5px 0 0; font-size:18px; font-weight:bold;">
-                <?php echo number_format($current_budget - $total_spent); ?> VND
+            <h4 style="margin:0;">Số dư</h4>
+            <p style="margin:5px 0 0; font-size:18px; font-weight:bold; color:#2e7d32;">
+                <?= number_format($balance) ?> VND
             </p>
         </div>
     </div>
-
-    <?php
-    // Show warning levels
-    if ($current_budget > 0) {
-        $percent = ($total_spent / $current_budget) * 100;
-        if ($percent >= 100) {
-            echo "<div style='padding:12px;background:#ffdddd;color:#b30000;border-left:5px solid red;border-radius:6px;'>⚠ Bạn đã vượt ngân sách tháng!</div>";
-        } elseif ($percent >= 80) {
-            echo "<div style='padding:12px;background:#fff3cd;color:#856404;border-left:5px solid #ffc107;border-radius:6px;'>⚠ Bạn đã sử dụng $percent% ngân sách tháng (>=80%)</div>";
-        } elseif ($percent >= 50) {
-            echo "<div style='padding:12px;background:#e7f3ff;color:#0b66c3;border-left:5px solid #66b0ff;border-radius:6px;'>ℹ Bạn đã sử dụng $percent% ngân sách tháng</div>";
-        }
-    } else {
-        echo "<p style='color:#666;'>Chưa có ngân sách cho tháng này.</p>";
-    }
-    ?>
 </main>
 
 <?php require 'footer.php'; ?>

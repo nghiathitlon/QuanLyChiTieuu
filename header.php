@@ -124,6 +124,7 @@ $username = $logged_in ? $_SESSION['username'] : '';
         <?php else: ?>
             <a class="btn" href="login.php">Đăng nhập</a>
             <a class="btn" href="register.php">Đăng ký</a>
+            
         <?php endif; ?>
     </nav>
 
