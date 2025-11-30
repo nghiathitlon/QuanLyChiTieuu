@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Nov 29, 2025 at 11:47 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Máy chủ: 127.0.0.1
+-- Thời gian đã tạo: Th10 30, 2025 lúc 01:35 PM
+-- Phiên bản máy phục vụ: 10.4.32-MariaDB
+-- Phiên bản PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `personal_finance_db`
+-- Cơ sở dữ liệu: `personal_finance_db`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `alerts`
+-- Cấu trúc bảng cho bảng `alerts`
 --
 
 CREATE TABLE `alerts` (
@@ -41,7 +41,7 @@ CREATE TABLE `alerts` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `budget`
+-- Cấu trúc bảng cho bảng `budget`
 --
 
 CREATE TABLE `budget` (
@@ -55,7 +55,7 @@ CREATE TABLE `budget` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `budget`
+-- Đang đổ dữ liệu cho bảng `budget`
 --
 
 INSERT INTO `budget` (`id`, `user_id`, `month`, `year`, `amount`, `created_at`, `updated_at`) VALUES
@@ -67,7 +67,7 @@ INSERT INTO `budget` (`id`, `user_id`, `month`, `year`, `amount`, `created_at`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Cấu trúc bảng cho bảng `categories`
 --
 
 CREATE TABLE `categories` (
@@ -78,7 +78,7 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `categories`
+-- Đang đổ dữ liệu cho bảng `categories`
 --
 
 INSERT INTO `categories` (`category_id`, `user_id`, `name`, `type`) VALUES
@@ -102,7 +102,7 @@ INSERT INTO `categories` (`category_id`, `user_id`, `name`, `type`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `monthlybudget`
+-- Cấu trúc bảng cho bảng `monthlybudget`
 --
 
 CREATE TABLE `monthlybudget` (
@@ -117,7 +117,7 @@ CREATE TABLE `monthlybudget` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reminders`
+-- Cấu trúc bảng cho bảng `reminders`
 --
 
 CREATE TABLE `reminders` (
@@ -132,7 +132,7 @@ CREATE TABLE `reminders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Dumping data for table `reminders`
+-- Đang đổ dữ liệu cho bảng `reminders`
 --
 
 INSERT INTO `reminders` (`id`, `user_id`, `title`, `description`, `remind_date`, `is_done`, `created_at`, `remind_time`) VALUES
@@ -147,7 +147,7 @@ INSERT INTO `reminders` (`id`, `user_id`, `title`, `description`, `remind_date`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `savings`
+-- Cấu trúc bảng cho bảng `savings`
 --
 
 CREATE TABLE `savings` (
@@ -159,7 +159,7 @@ CREATE TABLE `savings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Dumping data for table `savings`
+-- Đang đổ dữ liệu cho bảng `savings`
 --
 
 INSERT INTO `savings` (`id`, `user_id`, `name`, `amount`, `created_at`) VALUES
@@ -170,7 +170,7 @@ INSERT INTO `savings` (`id`, `user_id`, `name`, `amount`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transactions`
+-- Cấu trúc bảng cho bảng `transactions`
 --
 
 CREATE TABLE `transactions` (
@@ -186,7 +186,7 @@ CREATE TABLE `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `transactions`
+-- Đang đổ dữ liệu cho bảng `transactions`
 --
 
 INSERT INTO `transactions` (`transaction_id`, `user_id`, `type`, `category_id`, `note`, `amount`, `transaction_date`, `description`, `created_at`) VALUES
@@ -210,78 +210,82 @@ INSERT INTO `transactions` (`transaction_id`, `user_id`, `type`, `category_id`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Cấu trúc bảng cho bảng `users`
 --
 
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `username` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `avatar` varchar(255) DEFAULT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
+  `token_expire` datetime DEFAULT NULL,
   `reset_expire` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
+-- Đang đổ dữ liệu cho bảng `users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `username`, `password_hash`, `created_at`, `avatar`, `reset_token`, `reset_expire`) VALUES
-(1, 'jamesmoccua159@gmail.com', '64131472', '$2y$10$yswltJrLlbAMBFLhC9WT..CZ1/ohAwS21uhVKHir8kVNDSYXi0KJC', '2025-11-14 06:38:36', NULL, NULL, NULL),
-(2, '123@gmail.com', '123', '$2y$10$wp/.7Y8c13v8B3V8ug/rB.GigYbqatezXCrUTQvNeIPIzpJ4.GkVC', '2025-11-14 08:03:29', NULL, NULL, NULL),
-(3, 'teobuong89@gmail.com', 'Tèo', '$2y$10$Qtbqn0PaaG7tJy9iGeP.VuTHY7S.KKGlC/CzWInnSXzWxTty6vhWe', '2025-11-14 08:30:35', NULL, NULL, NULL),
-(4, 'orionkid93@gmail.com', '64132410', '$2y$10$XTK56.Hm0QBkGCY7lLGxiuE4OtlerX3oP7VhAVVa5A0FyYJt4x/XG', '2025-11-19 10:45:10', NULL, NULL, NULL),
-(5, 'thuan.vln.64cntt@ntu.edu.vn', 'Thuann ne', '$2y$10$8nPVNKrRrxxC/Md0uLKBUORQcSIkm1.FefUW80XAKB1lsfquCvyZy', '2025-11-19 14:04:09', '1763995766_meme-meo.webp', '8f973c858f138f792a568f15a37ab5a2', '2025-11-29 09:51:21');
+INSERT INTO `users` (`user_id`, `email`, `password`, `username`, `password_hash`, `created_at`, `avatar`, `reset_token`, `token_expire`, `reset_expire`) VALUES
+(1, 'jamesmoccua159@gmail.com', '', '64131472', '$2y$10$yswltJrLlbAMBFLhC9WT..CZ1/ohAwS21uhVKHir8kVNDSYXi0KJC', '2025-11-14 06:38:36', NULL, NULL, NULL, NULL),
+(2, '123@gmail.com', '', '123', '$2y$10$wp/.7Y8c13v8B3V8ug/rB.GigYbqatezXCrUTQvNeIPIzpJ4.GkVC', '2025-11-14 08:03:29', NULL, NULL, NULL, NULL),
+(3, 'teobuong89@gmail.com', '', 'Tèo', '$2y$10$Qtbqn0PaaG7tJy9iGeP.VuTHY7S.KKGlC/CzWInnSXzWxTty6vhWe', '2025-11-14 08:30:35', NULL, NULL, NULL, NULL),
+(4, 'orionkid93@gmail.com', '', '64132410', '$2y$10$XTK56.Hm0QBkGCY7lLGxiuE4OtlerX3oP7VhAVVa5A0FyYJt4x/XG', '2025-11-19 10:45:10', NULL, NULL, NULL, NULL),
+(5, 'thuan.vln.64cntt@ntu.edu.vn', '', 'Thuann ne', '$2y$10$8nPVNKrRrxxC/Md0uLKBUORQcSIkm1.FefUW80XAKB1lsfquCvyZy', '2025-11-19 14:04:09', '1763995766_meme-meo.webp', '8f973c858f138f792a568f15a37ab5a2', NULL, '2025-11-29 09:51:21'),
+(6, 'tho.nh.64cntt@ntu.edu.vn', '', 'huutho', '$2y$10$bHU43Yv2q.IcUhDxCJxVduSwAoOpi4Lytz7uEhOA32mmCz.9nFwA6', '2025-11-30 10:25:27', NULL, 'f5dec364a8f80cb3da923be1e607001509cb55797c255049e7a28b62520a3192', '2025-11-30 13:21:52', NULL),
+(7, 'tiembanhcanh@gmail.com', '', 'Nguyễn Hữu Thọ', '$2y$10$Fa1vPeOomYz9DkjEEUOYIuiF85exezs/v/Mc8lHRIRHUWMwo7EjbG', '2025-11-30 12:05:45', NULL, '8f5804d3bc9b3a8408e4dd99faea3d7425d7285e7e4d3ccd2ec36d3dcdb26411', '2025-11-30 13:42:01', NULL);
 
 --
--- Indexes for dumped tables
+-- Chỉ mục cho các bảng đã đổ
 --
 
 --
--- Indexes for table `alerts`
+-- Chỉ mục cho bảng `alerts`
 --
 ALTER TABLE `alerts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `budget`
+-- Chỉ mục cho bảng `budget`
 --
 ALTER TABLE `budget`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_user_month_year` (`user_id`,`month`,`year`);
 
 --
--- Indexes for table `categories`
+-- Chỉ mục cho bảng `categories`
 --
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`category_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `monthlybudget`
+-- Chỉ mục cho bảng `monthlybudget`
 --
 ALTER TABLE `monthlybudget`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unq_budget` (`user_id`,`month`,`year`);
 
 --
--- Indexes for table `reminders`
+-- Chỉ mục cho bảng `reminders`
 --
 ALTER TABLE `reminders`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `savings`
+-- Chỉ mục cho bảng `savings`
 --
 ALTER TABLE `savings`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `transactions`
+-- Chỉ mục cho bảng `transactions`
 --
 ALTER TABLE `transactions`
   ADD PRIMARY KEY (`transaction_id`),
@@ -289,94 +293,94 @@ ALTER TABLE `transactions`
   ADD KEY `category_id` (`category_id`);
 
 --
--- Indexes for table `users`
+-- Chỉ mục cho bảng `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT cho các bảng đã đổ
 --
 
 --
--- AUTO_INCREMENT for table `alerts`
+-- AUTO_INCREMENT cho bảng `alerts`
 --
 ALTER TABLE `alerts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT for table `budget`
+-- AUTO_INCREMENT cho bảng `budget`
 --
 ALTER TABLE `budget`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- AUTO_INCREMENT for table `categories`
+-- AUTO_INCREMENT cho bảng `categories`
 --
 ALTER TABLE `categories`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
--- AUTO_INCREMENT for table `monthlybudget`
+-- AUTO_INCREMENT cho bảng `monthlybudget`
 --
 ALTER TABLE `monthlybudget`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `reminders`
+-- AUTO_INCREMENT cho bảng `reminders`
 --
 ALTER TABLE `reminders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT for table `savings`
+-- AUTO_INCREMENT cho bảng `savings`
 --
 ALTER TABLE `savings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT for table `transactions`
+-- AUTO_INCREMENT cho bảng `transactions`
 --
 ALTER TABLE `transactions`
   MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- Constraints for dumped tables
+-- Các ràng buộc cho các bảng đã đổ
 --
 
 --
--- Constraints for table `alerts`
+-- Các ràng buộc cho bảng `alerts`
 --
 ALTER TABLE `alerts`
   ADD CONSTRAINT `alerts_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `budget`
+-- Các ràng buộc cho bảng `budget`
 --
 ALTER TABLE `budget`
   ADD CONSTRAINT `budget_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `categories`
+-- Các ràng buộc cho bảng `categories`
 --
 ALTER TABLE `categories`
   ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `reminders`
+-- Các ràng buộc cho bảng `reminders`
 --
 ALTER TABLE `reminders`
   ADD CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
--- Constraints for table `transactions`
+-- Các ràng buộc cho bảng `transactions`
 --
 ALTER TABLE `transactions`
   ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
