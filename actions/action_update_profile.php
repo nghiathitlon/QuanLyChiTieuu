@@ -66,10 +66,11 @@ $types = "ss";
 
 if (!empty($password)) {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $sql .= ", password=?";
+    $sql .= ", password_hash=?";
     $params[] = $hashed_password;
     $types .= "s";
 }
+
 
 if (!empty($avatar_name)) {
     $sql .= ", avatar=?";
