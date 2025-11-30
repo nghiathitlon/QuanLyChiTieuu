@@ -218,7 +218,7 @@ body::before {
     <form method="post" action="">
         <label>Email đã đăng ký:</label>
         <input type="email" name="email" placeholder="Nhập email của bạn" required>
-        <button type="submit">Gửi liên kết đặt lại</button>
+        <button type="submit">Gửi liên kết </button>
     </form>
 </div>
 
