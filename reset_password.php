@@ -1,230 +1,155 @@
 <?php
-// reset_password.php
+require 'db_connect.php';
 
-require_once 'db_connect.php'; // kết nối DB trả về $conn
-
+$showResetForm = false;
 $message = '';
-$showForm = false;
-$user_id = null;
+$token = '';
 
-// 1) Lấy token từ URL
-if (isset($_GET['token'])) {
+// Kiểm tra token từ link email
+if(isset($_GET['token'])) {
     $token = $_GET['token'];
 
-    // Debug tạm thời: hiển thị token để kiểm tra
-    // var_dump($token);
-
-    // 2) Kiểm tra token tồn tại và chưa hết hạn
     $stmt = $conn->prepare("SELECT user_id, token_expire FROM users WHERE reset_token = ?");
     $stmt->bind_param("s", $token);
     $stmt->execute();
     $res = $stmt->get_result();
 
-    if ($res->num_rows === 0) {
-        $message = "Token không hợp lệ hoặc đã được sử dụng.";
-    } else {
+    if($res->num_rows === 1) {
         $user = $res->fetch_assoc();
         $expire = strtotime($user['token_expire']);
-        $now = time();
-
-        // Debug: kiểm tra thời gian token
-        // var_dump($expire, $now);
-
-        if ($now > $expire) {
-            $message = "Token đã hết hạn. Vui lòng yêu cầu tạo token mới.";
+        if(time() > $expire) {
+            $message = "Link đã hết hạn!";
         } else {
-            $showForm = true;
+            $showResetForm = true; // Hiển thị form reset
             $user_id = $user['user_id'];
         }
+    } else {
+        $message = "Token không hợp lệ!";
     }
-} else {
-    $message = "Token không tồn tại trong URL.";
 }
 
-// 3) Xử lý khi submit form đổi mật khẩu
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'], $_POST['password_confirm'])) {
-    $password = $_POST['password'];
-    $password_confirm = $_POST['password_confirm'];
+// Xử lý submit form reset password
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_password'], $_POST['confirm_password'], $user_id)) {
+    $new_pass = $_POST['new_password'];
+    $confirm_pass = $_POST['confirm_password'];
 
-    if ($password !== $password_confirm) {
-        $message = "Mật khẩu xác nhận không trùng khớp.";
-        $showForm = true;
-    } elseif (strlen($password) < 6) {
-        $message = "Mật khẩu phải có ít nhất 6 ký tự.";
-        $showForm = true;
+    if($new_pass !== $confirm_pass) {
+        $message = "Mật khẩu nhập lại không khớp!";
+        $showResetForm = true;
     } else {
-        // Hash mật khẩu
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-        // Cập nhật password và xóa token
-        $stmt = $conn->prepare("UPDATE users SET password = ?, reset_token = NULL, token_expire = NULL WHERE user_id = ?");
-        $stmt->bind_param("si", $passwordHash, $user_id);
-
-        if ($stmt->execute()) {
-            $message = "Mật khẩu đã được đặt lại thành công. Bạn có thể đăng nhập ngay bây giờ.";
-            $showForm = false;
+        $hash = password_hash($new_pass, PASSWORD_DEFAULT);
+        $stmt2 = $conn->prepare("UPDATE users SET password_hash = ?, reset_token = NULL, token_expire = NULL WHERE user_id = ?");
+        $stmt2->bind_param("si", $hash, $user_id);
+        if($stmt2->execute()) {
+            $message = "Đổi mật khẩu thành công! Bạn có thể đăng nhập ngay.";
+            $showResetForm = false;
         } else {
-            $message = "Có lỗi xảy ra khi cập nhật mật khẩu. Vui lòng thử lại.";
-            $showForm = true;
+            $message = "Lỗi hệ thống!";
+            $showResetForm = true;
         }
     }
 }
+
+require 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<title>Đặt lại mật khẩu</title>
+<!-- Reset Password Form -->
+<div class="reset-table">
+    <h2>Đặt lại mật khẩu</h2>
+
+    <?php if($message): ?>
+        <p class="message"><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
+
+    <?php if($showResetForm): ?>
+    <form method="POST" action="">
+        <label>Mật khẩu mới</label>
+        <input type="password" name="new_password" placeholder="Nhập mật khẩu mới" required>
+
+        <label>Xác nhận mật khẩu</label>
+        <input type="password" name="confirm_password" placeholder="Nhập lại mật khẩu mới" required>
+
+        <button type="submit">Cập nhật mật khẩu</button>
+    </form>
+    <?php endif; ?>
+
+    <!-- Nút quay về đăng nhập -->
+    <a href="login.php" class="btn-login">Quay về Đăng nhập</a>
+</div>
+
 <style>
-/* Reset cơ bản */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Body với background */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: url('images/hero-bg.png') no-repeat center center/cover;
-    position: relative;
-}
-
-/* Overlay mờ nền */
-body::before {
-    content: "";
-    position: absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 1;
-}
-
-/* Form container */
-.container {
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(to bottom right, #ffffff, #f2f7ff);
-    padding: 50px 35px;
-    border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-    width: 100%;
-    max-width: 420px;
+/* ===== Reset Password Table / Form ===== */
+.reset-table {
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 40px 30px;
+    background: linear-gradient(135deg, #ffffff, #f0f8ff);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
     text-align: center;
-    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Heading */
-.container h2 {
-    font-size: 32px;
-    font-weight: 700;
+.reset-table h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
     color: #1a1a1a;
-    margin-bottom: 30px;
-    letter-spacing: 1px;
+    font-weight: 700;
 }
 
-/* Message */
-.container p {
+.reset-table .message {
     background-color: #fff3cd;
     color: #856404;
     padding: 12px 15px;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-bottom: 25px;
     font-size: 15px;
-    text-align: center;
-    border: 1px solid #ffeeba;
 }
 
-/* Input fields */
-.container input[type="password"] {
+.reset-table label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    text-align: left;
+    font-size: 14px;
+}
+
+.reset-table input[type="password"] {
     width: 100%;
     padding: 14px 18px;
     margin-bottom: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid #ccc;
     font-size: 16px;
     transition: all 0.3s ease;
 }
 
-.container input[type="password"]:focus {
-    border-color: #007BFF;
-    box-shadow: 0 0 8px rgba(0,123,255,0.3);
+.reset-table input[type="password"]:focus {
+    border-color: #1cc88a;
+    box-shadow: 0 0 12px rgba(28,200,138,0.3);
     outline: none;
 }
 
-/* Button */
-.container button {
+.reset-table button {
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     color: #fff;
-    background: linear-gradient(45deg, #007BFF, #0056b3);
+    background: linear-gradient(45deg, #1cc88a, #17a673);
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.container button:hover {
-    background: linear-gradient(45deg, #0056b3, #003f7f);
+.reset-table button:hover {
+    background: linear-gradient(45deg, #17a673, #138155);
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-}
-
-/* Label */
-label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-    display: block;
-    font-size: 14px;
-    text-align: left;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .container {
-        padding: 35px 25px;
-    }
-
-    .container h2 {
-        font-size: 26px;
-    }
-
-    .container input[type="password"],
-    .container button {
-        font-size: 15px;
-    }
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
 }
 
 </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Đặt lại mật khẩu</h2>
-    <?php if($message): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
-
-    <?php if($showForm): ?>
-    <form method="post" action="">
-        <label>Mật khẩu mới:</label>
-        <input type="password" name="password" placeholder="Nhập mật khẩu mới" required>
-        <label>Xác nhận mật khẩu:</label>
-        <input type="password" name="password_confirm" placeholder="Nhập lại mật khẩu" required>
-        <button type="submit">Đặt lại mật khẩu</button>
-    </form>
-    <?php endif; ?>
-</div>
-
-</body>
-</html>
+<?php require 'footer.php'; ?>
