@@ -17,6 +17,7 @@
     text-align: center;
 }
 
+/* Heading trong bảng */
 .form-main-container h2 {
     font-size: 26px;
     font-weight: 700;
@@ -24,6 +25,7 @@
     margin-bottom: 25px;
 }
 
+/* Label */
 .form-main-container label {
     display: block;
     text-align: left;
@@ -33,15 +35,17 @@
     font-size: 13px;
 }
 
+/* Input */
 .form-main-container input[type="email"],
 .form-main-container input[type="password"] {
-    width: 90%;
-    max-width: 300px;
-    padding: 10px 12px;
-    margin-bottom: 15px;
+    width: 90%;          /* nhỏ hơn 100% */
+    max-width: 300px;    /* giới hạn rộng nhất */
+    padding: 10px 12px;  /* giảm padding */
+    margin-bottom: 15px; /* khoảng cách nhỏ hơn */
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-size: 14px;
+    font-size: 14px;     /* nhỏ hơn */
+    transition: 0.3s;
 }
 
 .form-main-container input[type="email"]:focus,
@@ -51,6 +55,7 @@
     outline: none;
 }
 
+/* Button */
 .form-main-container button {
     width: 95%;
     max-width: 300px;
@@ -62,12 +67,14 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 .form-main-container button:hover {
     background: linear-gradient(45deg, #0056b3, #003f7f);
 }
 
+/* Links */
 .form-main-container p a {
     color: #007BFF;
     text-decoration: none;
@@ -76,7 +83,6 @@
 .form-main-container p a:hover {
     text-decoration: underline;
 }
-
 </style>
 
 <body>
