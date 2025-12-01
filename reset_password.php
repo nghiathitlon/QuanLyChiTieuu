@@ -62,8 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $user_id !== null) {
         }
     }
 }
-
-require 'header.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -73,52 +71,68 @@ require 'header.php';
 
 <style>
 * {
-    margin: 0; padding: 0; box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-.reset-container {
-    background: #f9f9f9;
-    padding: 40px 30px;
-    border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    width: 100%;
-    max-width: 400px;
-    margin: 60px auto;
-    text-align: center;
+
+body {
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f0f0f0;
+    position: relative;
 }
+
+/* Lớp mờ phủ toàn màn hình */
 body::before {
     content: "";
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
     position: absolute;
-    background: rgba(0, 0, 0, 0.6);
-    left: 0; top: 0;
+    background: rgba(0, 0, 0, 0.5);
+    left: 0;
+    top: 0;
+    z-index: 1;
 }
+
+/* Container chính */
 .reset-box {
     position: relative;
     z-index: 2;
-    width: 400px;
+    width: 380px;
     background: #fff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    animation: fadeIn 0.5s ease-in-out;
 }
+
 .reset-box h2 {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 22px;
 }
+
+/* Thông báo */
 .message {
     background: #fff3cd;
     color: #856404;
-    padding: 10px 15px;
+    padding: 12px;
     border-radius: 8px;
     border: 1px solid #ffeeba;
     margin-bottom: 20px;
     text-align: center;
 }
+
+/* Label + Input */
 label {
     font-weight: bold;
     margin-top: 12px;
     display: block;
 }
+
 input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -126,6 +140,8 @@ input[type="password"] {
     border: 1px solid #bbb;
     border-radius: 8px;
 }
+
+/* Button */
 button {
     width: 100%;
     background: #1cc88a;
@@ -137,9 +153,12 @@ button {
     cursor: pointer;
     font-weight: bold;
 }
+
 button:hover {
     background: #159a6b;
 }
+
+/* Link dưới nút */
 a.btn-login {
     display: block;
     text-align: center;
@@ -147,8 +166,15 @@ a.btn-login {
     color: #007bff;
     text-decoration: none;
 }
+
 a.btn-login:hover {
     text-decoration: underline;
+}
+
+/* Fade hiệu ứng nhẹ */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-10px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 </style>
 </head>
@@ -181,5 +207,3 @@ a.btn-login:hover {
 
 </body>
 </html>
-
-<?php require 'footer.php'; ?>
