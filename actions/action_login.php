@@ -3,36 +3,35 @@
 session_start();
 require '../db_connect.php';
 
-$email = $_POST['email'];
+// Lấy dữ liệu POST
+$email = trim($_POST['email']);
 $password = $_POST['password'];
 
 // 1. Tìm user bằng email
-$stmt = $conn->prepare("SELECT user_id, username, password_hash FROM Users WHERE email = ?");
+$stmt = $conn->prepare("SELECT user_id, username, password FROM Users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows == 1) {
-    // 2. Lấy thông tin user
+if ($result->num_rows === 1) {
     $user = $result->fetch_assoc();
 
-    // 3. So sánh mật khẩu đã băm
-    if (password_verify($password, $user['password_hash'])) {
-        
-        // 4. Lưu thông tin vào SESSION
+    // 2. So sánh mật khẩu nhập với hash trong DB
+    if (password_verify($password, $user['password'])) {
+        // 3. Lưu thông tin vào SESSION
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
-        
-        // 5. Chuyển hướng đến trang dashboard
+
+        // 4. Chuyển hướng đến dashboard
         header("Location: ../dashboard.php");
         exit;
     } else {
-      
-        echo "Sai mật khẩu!";
+        // Sai mật khẩu
+        echo "<p style='color:red;'>Sai mật khẩu!</p>";
     }
 } else {
- 
-    echo "Không tìm thấy email!";
+    // Email không tồn tại
+    echo "<p style='color:red;'>Không tìm thấy email!</p>";
 }
 
 $stmt->close();
