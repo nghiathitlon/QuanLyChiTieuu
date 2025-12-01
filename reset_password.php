@@ -77,6 +77,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'], $_POST['p
 <meta charset="UTF-8">
 <title>Đặt lại mật khẩu</title>
 <style>
+/* Reset cơ bản */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body với background */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     height: 100vh;
@@ -86,6 +94,8 @@ body {
     background: url('images/hero-bg.png') no-repeat center center/cover;
     position: relative;
 }
+
+/* Overlay mờ nền */
 body::before {
     content: "";
     position: absolute;
@@ -93,68 +103,108 @@ body::before {
     left:0;
     width:100%;
     height:100%;
-    background-color: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     z-index: 1;
 }
+
+/* Form container */
 .container {
     position: relative;
     z-index: 2;
-    background-color: rgba(255,255,255,0.95);
-    padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    background: linear-gradient(to bottom right, #ffffff, #f2f7ff);
+    padding: 50px 35px;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
+    text-align: center;
+    transition: all 0.3s ease;
 }
+
+/* Heading */
 .container h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #333;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 30px;
+    letter-spacing: 1px;
 }
+
+/* Message */
 .container p {
-    background-color: #ffefc2;
-    padding: 10px;
-    border-radius: 6px;
-    color: #333;
-    margin-bottom: 20px;
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-size: 15px;
     text-align: center;
+    border: 1px solid #ffeeba;
 }
+
+/* Input fields */
 .container input[type="password"] {
     width: 100%;
-    padding: 12px 15px;
+    padding: 14px 18px;
     margin-bottom: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: 1px solid #ccc;
     font-size: 16px;
-    transition: 0.3s;
+    transition: all 0.3s ease;
 }
+
 .container input[type="password"]:focus {
     border-color: #007BFF;
+    box-shadow: 0 0 8px rgba(0,123,255,0.3);
     outline: none;
 }
+
+/* Button */
 .container button {
     width: 100%;
-    padding: 12px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
+    padding: 14px;
     font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(45deg, #007BFF, #0056b3);
+    border: none;
+    border-radius: 10px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
 }
+
 .container button:hover {
-    background-color: #0056b3;
+    background: linear-gradient(45deg, #0056b3, #003f7f);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
+
+/* Label */
 label {
     font-weight: 600;
-    color: #555;
-    margin-bottom: 5px;
+    color: #333;
+    margin-bottom: 8px;
     display: block;
     font-size: 14px;
+    text-align: left;
 }
+
+/* Responsive */
+@media (max-width: 480px) {
+    .container {
+        padding: 35px 25px;
+    }
+
+    .container h2 {
+        font-size: 26px;
+    }
+
+    .container input[type="password"],
+    .container button {
+        font-size: 15px;
+    }
+}
+
 </style>
 </head>
 <body>
