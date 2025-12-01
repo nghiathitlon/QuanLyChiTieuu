@@ -81,14 +81,15 @@
 
 <body>
 
-    <h2>Đăng nhập</h2>
     <?php
         if (isset($_GET['register']) && $_GET['register'] == 'success') {
             echo "<p style='color:green;'>Đăng ký thành công! Vui lòng đăng nhập.</p>";
         }
     ?>
+  
     <div class="m-container">
         <div class="form-main-container">
+          <h2>Đăng nhập</h2>
             <form action="actions/action_login.php" method="POST">
                 <label>Email:</label>
                 <input type="email" name="email" required>
