@@ -37,13 +37,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $user_id !== null) {
     $password = $_POST["password"];
     $confirm = $_POST["password_confirm"];
 
+    // 1. Kiểm tra mật khẩu khớp
     if ($password !== $confirm) {
         $message = "Mật khẩu nhập lại không khớp!";
         $showForm = true;
-    } elseif (strlen($password) < 6) {
+    } 
+    // 2. Kiểm tra độ dài >= 6
+    elseif (strlen($password) < 6) {
         $message = "Mật khẩu phải có ít nhất 6 ký tự.";
         $showForm = true;
-    } else {
+    } 
+    // 3. Kiểm tra ký tự hợp lệ (không có dấu)
+    elseif (preg_match('/[^\x20-\x7E]/', $password)) {
+        $message = "Mật khẩu không được chứa dấu hoặc ký tự đặc biệt không hợp lệ!";
+        $showForm = true;
+    } 
+    else {
+        // 4. Băm mật khẩu và cập nhật DB
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         $stmt = $conn->prepare("
@@ -62,6 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $user_id !== null) {
         }
     }
 }
+
 
 ?>
 <!DOCTYPE html>

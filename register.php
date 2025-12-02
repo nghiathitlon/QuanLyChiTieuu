@@ -121,6 +121,48 @@ body {
     <div class="container">
         <div class="form-main-container">
             <h2>Đăng ký</h2>
+            <?php
+if (isset($_GET['error'])) {
+    if ($_GET['error'] == 'short_password') {
+        echo '<p class="alert" style="
+            background:#fff3cd;
+            color:#856404;
+            padding:10px;
+            border-radius:8px;
+            border:1px solid #ffeeba;
+            margin-bottom:12px;
+            font-weight:bold;">
+            Mật khẩu phải ít nhất 6 ký tự!
+        </p>';
+    }
+    if ($_GET['error'] == 'email_exists') {
+        echo '<p class="alert" style="
+            background:#ffe6e6;
+            color:#cc0000;
+            padding:10px 15px;
+            border-radius:10px;
+            font-weight:bold;
+            width:80%;
+            margin: -10px auto 20px auto;
+            border:1px solid #ffb3b3;">
+            Email đã tồn tại! Vui lòng đăng nhập hoặc sử dụng email khác.
+        </p>';
+    }
+    if ($_GET['error'] == 'password_invalid_char') {
+        echo '<p class="alert" style="
+            background:#fff3cd;
+            color:#856404;
+            padding:10px;
+            border-radius:8px;
+            border:1px solid #ffeeba;
+            margin-bottom:12px;
+            font-weight:bold;">
+            Mật khẩu không được chứa dấu hoặc ký tự đặc biệt không hợp lệ!
+        </p>';
+    }
+}
+?>
+
             <form action="actions/action_register.php" method="POST">
                 <label for="username">Tên hiển thị:</label>
                 <input type="text" name="username" required>

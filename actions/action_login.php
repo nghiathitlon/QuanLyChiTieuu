@@ -26,12 +26,14 @@ if ($result->num_rows === 1) {
         header("Location: ../dashboard.php");
         exit;
     } else {
-        // Sai mật khẩu
-        echo "<p style='color:red;'>Sai mật khẩu!</p>";
+        // Sai mật khẩu → chuyển hướng kèm lỗi
+        header("Location: ../login.php?error=wrong_password");
+        exit;
     }
 } else {
-    // Email không tồn tại
-    echo "<p style='color:red;'>Không tìm thấy email!</p>";
+    // Email không tồn tại → chuyển hướng kèm lỗi
+    header("Location: ../login.php?error=email_not_found");
+    exit;
 }
 
 $stmt->close();

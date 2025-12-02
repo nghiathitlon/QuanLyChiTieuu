@@ -111,6 +111,40 @@
 
     <div class="form-container">
         <h2>Đăng nhập</h2>
+        <?php
+// Nếu đăng ký thành công
+if (isset($_GET['register']) && $_GET['register'] == 'success') {
+    echo '<p class="alert" style="color:#28a745;">🎉 Đăng ký thành công! Vui lòng đăng nhập.</p>';
+}
+
+// Sai mật khẩu
+if (isset($_GET['error']) && $_GET['error'] == 'wrong_password') {
+    echo '<p class="alert" style="
+        background:#ffe6e6;
+        color:#cc0000;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid #ffb3b3;
+        font-weight:bold;
+        margin-bottom:12px;">
+        Sai mật khẩu! Vui lòng thử lại.
+    </p>';
+}
+
+// Email không tồn tại
+if (isset($_GET['error']) && $_GET['error'] == 'email_not_found') {
+    echo '<p class="alert" style="
+        background:#fff3cd;
+        color:#856404;
+        padding:10px;
+        border-radius:8px;
+        border:1px solid #ffeeba;
+        font-weight:bold;
+        margin-bottom:12px;">
+        Email không tồn tại trong hệ thống.
+    </p>';
+}
+?>
 
         <?php
         if (isset($_GET['register']) && $_GET['register'] == 'success') {
