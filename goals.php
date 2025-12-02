@@ -50,23 +50,22 @@ require 'header.php';
 </head>
 <body>
 <div class="container">
-    <h2 class="section-title,">Mục tiêu tài chính</h2> <style>
-body {
-    font-family: "Segoe UI", sans-serif;
-    background: white;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-}
-.section-title {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 600;
-    color: #2e59d9; /* xanh nhạt tinh tế */
-    margin-bottom: 20px;
-    margin-top: 5px;
-    letter-spacing: 0.3px;
-}
+    <h2 class="section-title">Mục tiêu tài chính</h2> 
+    <style> 
+    body { 
+        font-family: "Segoe UI", sans-serif; 
+        background: white; 
+        margin: 0; 
+        padding: 0; 
+        min-height: 100vh; } 
+    .section-title { 
+        text-align: center; 
+        font-size: 22px; 
+        font-weight: 600; 
+        color: #2e59d9; /* xanh nhạt tinh tế */ 
+        margin-bottom: 20px;
+         margin-top: 5px; 
+        letter-spacing: 0.3px; }
 .container {
     max-width: 900px;
     margin: 30px auto;
