@@ -109,3 +109,4 @@ $user = $query->fetch_assoc();
 </html>
 
 <?php require 'footer.php'; ?>
+<?php require 'header.php'; ?>
