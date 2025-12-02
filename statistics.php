@@ -90,75 +90,222 @@ require 'header.php';
 ?>
 
 <section style="margin:20px 0;">
-<h2>Thống kê chi tiêu</h2>
 
-<form method="GET" style="display:flex; gap:20px; align-items:flex-end; margin-bottom:20px;">
-    <div>
-        <label>Từ ngày:</label>
-        <input type="date" name="start_date" value="<?= $_GET['start_date'] ?? date('Y-m-01') ?>">
-    </div>
-    <div>
-        <label>Đến ngày:</label>
-        <input type="date" name="end_date" value="<?= $_GET['end_date'] ?? date('Y-m-t') ?>">
-    </div>
-    <div>
-        <label>Quỹ tiết kiệm theo tháng:</label>
-        <input type="month" name="saving_month" value="<?= $_GET['saving_month'] ?? date('Y-m') ?>">
-    </div>
-    <button type="submit" style="padding:6px 12px; background:#1cc88a; color:white; border:none; border-radius:5px;">
-        Xem chi tiêu
-    </button>
-</form>
+    <h2 class="section-title">Thống kê chi tiêu</h2>
+
+    <form method="GET" class="filter-form">
+        <div>
+            <label>Từ ngày:</label>
+            <input type="date" name="start_date" value="<?= $_GET['start_date'] ?? date('Y-m-01') ?>">
+        </div>
+        <div>
+            <label>Đến ngày:</label>
+            <input type="date" name="end_date" value="<?= $_GET['end_date'] ?? date('Y-m-t') ?>">
+        </div>
+        <div>
+            <label>Quỹ tiết kiệm theo tháng:</label>
+            <input type="month" name="saving_month" value="<?= $_GET['saving_month'] ?? date('Y-m') ?>">
+        </div>
+        <button type="submit">Xem chi tiêu</button>
+    </form>
 
 
-<div style="padding:15px; background:#e3f2fd; border-left:5px solid #2196f3; border-radius:8px; min-width:240px; margin-bottom:20px;">
-    <h4>Quỹ tiết kiệm tháng <?= "$saving_month_only/$saving_year" ?></h4>
-    <p style="font-size:18px; font-weight:bold; color:#0d47a1;">
-        <?= format_vnd_with_usd($month_saving) ?>
-    </p>
-</div>
+    <!-- Quỹ tiết kiệm -->
+    <div class="card card-saving">
+        <h4>Quỹ tiết kiệm tháng <?= "$saving_month_only/$saving_year" ?></h4>
+        <p><?= format_vnd_with_usd($month_saving) ?></p>
+    </div>
 
-<div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
-    <div style="padding:15px; background:#fff8e1; border-left:5px solid #ffc107; border-radius:8px; min-width:220px;">
-        <h4>Tổng Thu</h4>
-        <p style="font-size:18px; font-weight:bold; color:#d48806;"><?= format_vnd_with_usd($total_income) ?></p>
+    <!-- Tổng Thu/Chi/Số dư -->
+    <div class="cards-container">
+        <div class="card card-income">
+            <h4>Tổng Thu</h4>
+            <p><?= format_vnd_with_usd($total_income) ?></p>
+        </div>
+        <div class="card card-expense">
+            <h4>Tổng Chi</h4>
+            <p><?= format_vnd_with_usd($total_expense_with_savings) ?></p>
+        </div>
+        <div class="card card-balance">
+            <h4>Số dư</h4>
+            <p><?= format_vnd_with_usd($balance) ?></p>
+        </div>
     </div>
-    <div style="padding:15px; background:#ffebee; border-left:5px solid #f44336; border-radius:8px; min-width:240px;">
-        <h4>Tổng Chi</h4>
-        <p style="font-size:18px; font-weight:bold; color:#c62828;"><?= format_vnd_with_usd($total_expense_with_savings) ?></p>
-    </div>
-    <div style="padding:15px; background:#e8f5e9; border-left:5px solid #4caf50; border-radius:8px; min-width:220px;">
-        <h4>Số dư</h4>
-        <p style="font-size:18px; font-weight:bold; color:#2e7d32;"><?= format_vnd_with_usd($balance) ?></p>
-    </div>
-</div>
 
-<table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse;">
-<thead style="background:#f2f2f2;">
-<tr>
-    <th>Ngày</th>
-    <th>Danh mục</th>
-    <th>Loại</th>
-    <th>Số tiền</th>
-    <th>Ghi chú</th>
-</tr>
-</thead>
-<tbody>
-<?php if($transactions_result->num_rows > 0): ?>
-    <?php while($row = $transactions_result->fetch_assoc()): ?>
-        <tr style="<?= $row['category_name']==='Quỹ ngân sách' ? 'background:#e8f5e9;' : '' ?>">
-            <td><?= $row['transaction_date'] ?></td>
-            <td><?= htmlspecialchars($row['category_name']) ?></td>
-            <td><?= ($row['type'] === 'Thu') ? 'Thu' : 'Chi' ?></td>
-            <td><?= format_vnd_with_usd($row['amount']) ?></td>
-            <td><?= htmlspecialchars($row['description']) ?></td>
-        </tr>
-    <?php endwhile; ?>
-<?php else: ?>
-<tr><td colspan="5" style="text-align:center;">Không có giao dịch nào.</td></tr>
-<?php endif; ?>
-</tbody>
-</table>
+    <!-- Bảng giao dịch -->
+    <table>
+        <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Danh mục</th>
+                <th>Loại</th>
+                <th>Số tiền</th>
+                <th>Ghi chú</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php if($transactions_result->num_rows > 0): ?>
+            <?php while($row = $transactions_result->fetch_assoc()): ?>
+                <tr class="<?= $row['category_name']==='Quỹ ngân sách' ? 'highlight-saving' : '' ?>">
+                    <td><?= $row['transaction_date'] ?></td>
+                    <td><?= htmlspecialchars($row['category_name']) ?></td>
+                    <td><?= ($row['type'] === 'Thu') ? 'Thu' : 'Chi' ?></td>
+                    <td><?= format_vnd_with_usd($row['amount']) ?></td>
+                    <td><?= htmlspecialchars($row['description']) ?></td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="5" style="text-align:center;">Không có giao dịch nào.</td></tr>
+        <?php endif; ?>
+        </tbody>
+    </table>
+
+    <!-- CSS pastel nhạt hơn -->
+    <style>
+        /* Form lọc */
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 30px;
+        }
+        form div {
+            display: flex;
+            flex-direction: column;
+        }
+        form label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        form input[type="date"],
+        form input[type="month"] {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        form button {
+            padding: 8px 16px;
+            background: #81c784; /* xanh nhạt pastel */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        form button:hover {
+            background: #66bb6a;
+        }
+        .section-title {
+    text-align: center;
+    color: #1a73e8;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.filter-form {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+    align-items: flex-end;
+    margin-bottom: 30px;
+}
+
+.filter-form div {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 220px;
+            padding: 20px;
+            border-radius: 10px;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .card p {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Màu nhạt pastel cho từng card */
+        .card-saving {
+            background: #e3f2fd; /* xanh nhạt */
+            border-left: 5px solid #2196f3;
+        }
+        .card-income {
+            background: #fff8e1; /* vàng nhạt */
+            border-left: 5px solid #ffc107;
+        }
+        .card-expense {
+            background: #ffebee; /* đỏ nhạt */
+            border-left: 5px solid #f44336;
+        }
+        .card-balance {
+            background: #e8f5e9; /* xanh lá nhạt */
+            border-left: 5px solid #4caf50;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        table thead {
+            background: #f2f2f2;
+        }
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 14px;
+        }
+        table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+        table tbody tr:hover {
+            background: #e3f2fd;
+        }
+        .highlight-saving {
+            background: #e8f5e9 !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .cards-container {
+                flex-direction: column;
+            }
+            table th, table td {
+                font-size: 13px;
+                padding: 10px;
+            }
+        }
+    </style>
 </section>
 
 <?php require 'footer.php'; ?>

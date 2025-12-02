@@ -21,12 +21,90 @@ $expense_categories = $conn->query("SELECT * FROM categories WHERE user_id=$user
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-body { 
-    font-family: Arial; 
-    background:#f5f5f5; 
-    padding:20px;
+/* Body & container */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    padding: 20px;
+    color: #333;
 }
 
+h2 {
+    text-align: center;
+    color: #4e73df;
+    margin-bottom: 20px;
+}
+
+/* Message */
+#message {
+    margin: 15px 0;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Form thêm danh mục */
+form#addCategoryForm {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    max-width: 500px;
+    margin: 0 auto 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+form#addCategoryForm input,
+form#addCategoryForm select,
+form#addCategoryForm button {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+form#addCategoryForm input:focus,
+form#addCategoryForm select:focus {
+    outline: none;
+    border-color: #4e73df;
+    box-shadow: 0 0 6px rgba(78,115,223,0.4);
+}
+
+form#addCategoryForm button {
+    background: linear-gradient(45deg, #4e73df, #2e59d9);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form#addCategoryForm button:hover {
+    background: linear-gradient(45deg, #2e59d9, #1d4ed8);
+    transform: scale(1.02);
+}
+
+/* Search box */
+#categorySearch {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin: 15px auto;
+    display: block;
+    font-size: 14px;
+}
+
+#categorySearch:focus {
+    outline: none;
+    border-color: #4e73df;
+    box-shadow: 0 0 6px rgba(78,115,223,0.4);
+}
+
+/* Grid danh mục */
 .category-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -34,81 +112,133 @@ body {
     margin-top: 20px;
 }
 
+/* Card danh mục */
 .category-card {
     background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-
+    padding: 15px 18px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
     word-break: break-word;
-    min-height: 50px;
 }
 
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+.category-card.expense { border-left: 6px solid #e74a3b; }
+.category-card.income  { border-left: 6px solid #4e73df; }
+
+/* Card header */
 .category-card h4 {
     margin: 0;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
-    gap: 5px;
-    flex: 1;
-    min-width: 0;
+    gap: 8px;
+    color: #333;
 }
 
+/* Actions (Sửa/Xóa) */
 .category-card .actions {
-    flex-shrink: 0;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .category-card .actions a {
     font-size: 0.9rem;
+    color: #4e73df;
     text-decoration: none;
-    color: #007bff;
-    white-space: nowrap;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: 0.2s;
 }
 
 .category-card .actions a:hover {
-    text-decoration: underline;
+    background: rgba(78,115,223,0.1);
 }
 
-.category-card.expense { border-left: 5px solid #e74a3b; }
-.category-card.income  { border-left: 5px solid #4e73df; }
-
-#message { 
-    margin:10px 0; font-weight:bold;
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
 }
 
-.modal { 
-    display:none; 
-    position:fixed; 
-    z-index:1000; 
-    left:0; top:0; 
-    width:100%; height:100%; 
-    background:rgba(0,0,0,0.5);
+.modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.12);
 }
 
-.modal-content { 
-    background:#fff;
-    margin:10% auto;
-    padding:20px;
-    border-radius:10px;
-    max-width:400px;
-    position:relative;
+.modal-content .close {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
 }
 
-.modal-content .close { 
-    position:absolute; 
-    top:10px; right:15px; 
-    font-size:1.5rem; 
-    cursor:pointer; 
+.modal-content .close:hover { color: #333; }
+
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-content form input,
+.modal-content form select,
+.modal-content form button {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.modal-content form input:focus,
+.modal-content form select:focus {
+    outline: none;
+    border-color: #4e73df;
+    box-shadow: 0 0 6px rgba(78,115,223,0.4);
+}
+
+.modal-content form button {
+    background: linear-gradient(45deg, #4e73df, #2e59d9);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modal-content form button:hover {
+    background: linear-gradient(45deg, #2e59d9, #1d4ed8);
+    transform: scale(1.02);
+}
+
+/* Responsive */
+@media(max-width:600px){
+    .category-container { grid-template-columns: 1fr; }
+    form#addCategoryForm, .modal-content { width: 90%; }
 }
 </style>
+
 </head>
 <body>
 
