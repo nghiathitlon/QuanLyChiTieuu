@@ -50,7 +50,119 @@ require 'header.php';
 </head>
 <body>
 <div class="container">
-    <h2>🎯 Mục tiêu tài chính</h2>
+    <h2> Mục tiêu tài chính</h2>
+    <style>
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: white;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 0 15px;
+}
+
+h2 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: 28px;
+}
+
+.card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    margin-top: 6px;
+    transition: 0.3s;
+}
+
+input:focus, textarea:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 8px rgba(78,115,223,0.4);
+    outline: none;
+}
+
+.btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #4e73df, #2e59d9);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #2e59d9, #1d4ed8);
+    transform: scale(1.02);
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.progress {
+    height: 14px;
+    background: #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress .fill {
+    height: 100%;
+    background: #1cc88a;
+    border-radius: 12px 0 0 12px;
+    transition: width 0.4s ease;
+}
+
+small {
+    color: #555;
+}
+
+h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+span {
+    font-weight: 600;
+}
+
+@media(max-width:600px) {
+    .card {
+        padding: 15px;
+    }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; }
+}
+</style>
 
     <div class="card">
         <form method="POST">

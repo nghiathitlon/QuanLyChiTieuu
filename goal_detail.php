@@ -67,11 +67,184 @@ require 'header.php';
     <title>Chi tiết mục tiêu</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-    .container{max-width:1000px;margin:20px auto}
-    .card{background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:12px}
-    table{width:100%;border-collapse:collapse}
-    th, td{padding:8px;border-bottom:1px solid #eee}
-    .btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer}
+    /* ===== Reset cơ bản ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f4f6f8;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ===== Container chính ===== */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ===== Card ===== */
+.card {
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+/* ===== Headings ===== */
+h2, h3 {
+    color: #333;
+    margin-bottom: 12px;
+}
+
+/* ===== Links & buttons ===== */
+a {
+    text-decoration: none;
+    color: #4e73df;
+    font-weight: 600;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+.btn-primary {
+    background: #4e73df;
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #2e59d9;
+    transform: scale(1.05);
+}
+.btn-success {
+    background: #1cc88a;
+    color: #fff;
+}
+.btn-success:hover {
+    background: #17a673;
+    transform: scale(1.05);
+}
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+.btn-danger:hover {
+    background: #c0392b;
+    transform: scale(1.05);
+}
+
+/* ===== Form ===== */
+form input, form textarea, form select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    transition: 0.3s;
+}
+form input:focus, form textarea:focus, form select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 6px rgba(78,115,223,0.3);
+    outline: none;
+}
+form button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+/* ===== Progress bar ===== */
+.progress {
+    width: 100%;
+    height: 14px;
+    background: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+.progress .fill {
+    height: 100%;
+    background: #1cc88a;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+}
+
+/* ===== Table ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+tr:hover {
+    background: #f1f3f5;
+}
+
+/* ===== Alerts ===== */
+.alert {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+.alert-success { background: #d4edda; color: #155724; border:1px solid #c3e6cb;}
+.alert-warning { background: #fff3cd; color: #856404; border:1px solid #ffeeba;}
+.alert-danger  { background: #f8d7da; color: #721c24; border:1px solid #f5c6cb;}
+
+/* ===== Modal ===== */
+#editModal {
+    display: none;
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+#editModal > div {
+    background: #fff;
+    width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+}
+#editModal h3 { margin-bottom: 12px; }
+
+/* ===== Responsive ===== */
+@media (max-width:768px){
+    .container { padding: 10px; }
+    .card { padding: 15px; }
+    form input, form textarea, form select { font-size: 14px; }
+    table { font-size: 13px; }
+}
+
     </style>
 </head>
 <body>
