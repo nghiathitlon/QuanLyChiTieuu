@@ -116,6 +116,7 @@ $username = $logged_in ? $_SESSION['username'] : '';
         <a href="categories.php">Quản lý Danh mục</a>
         <a href="budget.php">Ngân sách</a>
         <a href="statistics.php">Thống kê</a>
+        <a href="goals.php">Mục tiêu tài chính</a>
         <a href="javascript:void(0)" onclick="toggleConverter()">Chuyển đổi tiền</a>
 
         <?php if($logged_in): ?>
