@@ -31,7 +31,7 @@ if ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-// Tính tổng thu/chi (bao gồm quỹ ngân sách)
+// Tính tổng thu/chi
 $stmt = $conn->prepare("
     SELECT 
         SUM(CASE WHEN c.type='income' THEN t.amount ELSE 0 END) AS total_income,
@@ -47,7 +47,7 @@ $total_income = floatval($res['total_income']);
 $total_spent  = floatval($res['total_spent']);
 $stmt->close();
 
-// Lấy tổng quỹ tiết kiệm
+// Tổng quỹ tiết kiệm
 $stmt = $conn->prepare("SELECT SUM(amount) AS total_savings FROM savings WHERE user_id=? AND MONTH(created_at)=? AND YEAR(created_at)=?");
 $stmt->bind_param("iii", $user_id, $selected_month, $selected_year);
 $stmt->execute();
@@ -55,24 +55,27 @@ $res2 = $stmt->get_result()->fetch_assoc();
 $total_savings = floatval($res2['total_savings'] ?? 0);
 $stmt->close();
 
-// Tổng chi bao gồm quỹ tiết kiệm
-$total_expense_with_savings = $total_spent + $total_savings;
-
-// 1️⃣ Số dư thực tế = thu - chi
-$real_balance = $total_income - $total_expense_with_savings;
-
-// 2️⃣ Số dư ngân sách = ngân sách - chi (so với ngân sách đặt ra)
-$budget_balance = ($current_budget !== null) ? $current_budget - $total_expense_with_savings : null;
-
-// % chi tiêu so với ngân sách
-$expense_percent = ($current_budget > 0) ? round(($total_expense_with_savings / $current_budget) * 100, 2) : null;
-
-// Kiểm tra vượt ngân sách
-$over_budget = ($current_budget !== null && $total_expense_with_savings > $current_budget);
-
 $conn->close();
-require 'header.php';
+
+// Tính toán
+$total_expense_with_savings = $total_spent + $total_savings;
+$real_balance = $total_income - $total_expense_with_savings;
+$budget_balance = ($current_budget !== null) ? $current_budget - $total_expense_with_savings : null;
+$expense_percent = ($current_budget > 0) ? round(($total_expense_with_savings / $current_budget) * 100, 2) : null;
+$over_budget = ($current_budget !== null && $total_expense_with_savings > $current_budget);
 ?>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Ngân sách tháng</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<?php require 'header.php'; ?>
 
 <main style="padding:20px">
     <h2>Ngân sách tháng</h2>
@@ -141,4 +144,6 @@ require 'header.php';
 </main>
 
 <?php require 'footer.php'; ?>
-<?php require 'header.php'; ?>
+
+</body>
+</html>
