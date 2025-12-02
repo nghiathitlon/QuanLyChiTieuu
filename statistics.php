@@ -89,7 +89,7 @@ $stmt->close();
 require 'header.php';
 ?>
 
-<section style="margin:20px 0;">
+<section>
 
     <h2 class="section-title">Thống kê chi tiêu</h2>
 
@@ -162,6 +162,12 @@ require 'header.php';
 
     <!-- CSS pastel nhạt hơn -->
     <style>
+        body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    color: #333;
+    }
         /* Form lọc */
         form {
             display: flex;
