@@ -63,7 +63,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $user_id !== null) {
     }
 }
 
-require 'header.php';
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -75,6 +74,13 @@ require 'header.php';
 * {
     margin: 0; padding: 0; box-sizing: border-box;
 }
+body {
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .reset-container {
     background: #f9f9f9;
     padding: 40px 30px;
@@ -84,13 +90,6 @@ require 'header.php';
     max-width: 400px;
     margin: 60px auto;
     text-align: center;
-}
-body::before {
-    content: "";
-    width: 100%; height: 100%;
-    position: absolute;
-    background: rgba(0, 0, 0, 0.6);
-    left: 0; top: 0;
 }
 .reset-box {
     position: relative;
@@ -149,6 +148,18 @@ a.btn-login {
 }
 a.btn-login:hover {
     text-decoration: underline;
+}
+.reset-box {
+    opacity: 0;
+    transform: translateY(40px);
+    animation: slideUp 0.7s ease-out forwards;
+}
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 </style>
 </head>

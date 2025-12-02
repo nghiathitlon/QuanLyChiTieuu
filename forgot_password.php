@@ -74,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['email'])) {
         }
     }
 }
-require 'header.php';
 ?>
 
 <!DOCTYPE html>
@@ -82,129 +81,112 @@ require 'header.php';
 <head>
 <meta charset="UTF-8">
 <title>Quên mật khẩu</title>
+
 <style>
-/* Container form */
-.reset-container {
-    background: #f9f9f9;
-    padding: 40px 30px;
-    border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    width: 100%;
-    max-width: 400px;
-    margin: 60px auto;
-    text-align: center;
+body {
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Heading */
+/* Hiệu ứng xuất hiện từ dưới lên */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reset-container {
+    background: #fff;
+    padding: 35px 30px;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+
+    /* Áp dụng animation */
+    animation: fadeSlideUp 0.6s ease-in-out;
+}
+
 .reset-container h2 {
     font-size: 28px;
-    margin-bottom: 25px;
     font-weight: 700;
     color: #333;
+    margin-bottom: 25px;
 }
 
-/* Message */
 .reset-container p {
     background-color: #fff3cd;
     color: #856404;
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    font-size: 15px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 18px;
 }
 
-/* Input */
+.reset-container label {
+    display: block;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #333;
+}
+
 .reset-container input[type="email"] {
-    width: 100%;
-    padding: 14px 18px;
-    margin-bottom: 20px;
+    width: 90%;
+    padding: 12px 14px;
     border-radius: 10px;
     border: 1px solid #ccc;
-    font-size: 16px;
-    transition: all 0.3s ease;
+    margin-bottom: 18px;
+    font-size: 15px;
 }
 
 .reset-container input[type="email"]:focus {
     border-color: #007BFF;
-    box-shadow: 0 0 8px rgba(0,123,255,0.3);
+    box-shadow: 0 0 6px rgba(0,123,255,0.3);
     outline: none;
 }
 
-/* Button */
 .reset-container button {
     width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #fff;
-    background: linear-gradient(45deg, #007BFF, #0056b3);
-    border: none;
+    padding: 12px;
+    background: linear-gradient(90deg, #337be8, #1a5bd8);
     border-radius: 10px;
+    border: none;
+    color: #fff;
+    font-size: 15.5px;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    transition: 0.3s;
 }
 
 .reset-container button:hover {
-    background: linear-gradient(45deg, #0056b3, #003f7f);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    background: linear-gradient(90deg, #1a5bd8, #0d3ea5);
+    transform: scale(1.02);
 }
 
-/* Label */
-.reset-container label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-    display: block;
+.reset-container a {
     font-size: 14px;
-    text-align: left;
-}
-
-/* Nút quay về đăng nhập */
-.reset-table .btn-login {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 20px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #1cc88a;
-    background: #f0f8ff;
-    border: 2px solid #1cc88a;
-    border-radius: 12px;
+    color: #007BFF;
     text-decoration: none;
-    transition: all 0.3s ease;
 }
 
-.reset-table .btn-login:hover {
-    background: #1cc88a;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+.reset-container a:hover {
+    text-decoration: underline;
 }
 
-/* Responsive */
-@media(max-width:768px){
-    .reset-table {
-        padding: 30px 20px;
-        margin: 30px 15px;
-    }
-    .reset-table h2 {
-        font-size: 24px;
-    }
-    .reset-table input[type="password"] {
-        padding: 12px 15px;
-        font-size: 15px;
-    }
-    .reset-table button {
-        padding: 14px;
-        font-size: 15px;
-    }
-    .reset-table .btn-login {
-        padding: 10px 18px;
-        font-size: 14px;
-    }
-}
 </style>
+
 </head>
 <body>
 
@@ -218,10 +200,13 @@ require 'header.php';
     <form method="post" action="">
         <label>Email đã đăng ký:</label>
         <input type="email" name="email" placeholder="Nhập email của bạn" required>
-        <button type="submit">Gửi liên kết</button>
+
+        <button type="submit">Gửi liên kết đặt lại</button>
     </form>
 
-    <a href="login.php" class="btn-login">Quay về Đăng nhập</a>
+    <a href="login.php">Quay về đăng nhập</a>
 </div>
+
 </body>
 </html>
+
