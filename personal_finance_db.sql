@@ -24,10 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `alerts`
+-- Table structure for table `Alerts`
 --
 
-CREATE TABLE `alerts` (
+CREATE TABLE `Alerts` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `type` varchar(50) NOT NULL,
@@ -41,10 +41,10 @@ CREATE TABLE `alerts` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `budget`
+-- Table structure for table `Budget`
 --
 
-CREATE TABLE `budget` (
+CREATE TABLE `Budget` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `month` tinyint(4) NOT NULL,
@@ -55,10 +55,10 @@ CREATE TABLE `budget` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `budget`
+-- Dumping data for table `Budget`
 --
 
-INSERT INTO `budget` (`id`, `user_id`, `month`, `year`, `amount`, `created_at`, `updated_at`) VALUES
+INSERT INTO `Budget` (`id`, `user_id`, `month`, `year`, `amount`, `created_at`, `updated_at`) VALUES
 (1, 5, 11, 2025, 7000000.00, '2025-11-19 17:38:09', '2025-11-25 09:31:58'),
 (2, 5, 3, 2025, 3000000.00, '2025-11-20 07:56:46', '2025-11-20 19:36:35'),
 (5, 4, 4, 2025, 0.00, '2025-11-20 18:36:16', '2025-11-20 18:36:16'),
@@ -68,10 +68,10 @@ INSERT INTO `budget` (`id`, `user_id`, `month`, `year`, `amount`, `created_at`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `categories`
+-- Table structure for table `Categories`
 --
 
-CREATE TABLE `categories` (
+CREATE TABLE `Categories` (
   `category_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -79,10 +79,10 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `categories`
+-- Dumping data for table `Categories`
 --
 
-INSERT INTO `categories` (`category_id`, `user_id`, `name`, `type`) VALUES
+INSERT INTO `Categories` (`category_id`, `user_id`, `name`, `type`) VALUES
 (5, 3, 'Đi lại', 'expense'),
 (7, 3, 'Lương', 'income'),
 (8, 3, 'Ăn uống', 'expense'),
@@ -103,10 +103,10 @@ INSERT INTO `categories` (`category_id`, `user_id`, `name`, `type`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `financial_goals`
+-- Table structure for table `Financial_goals`
 --
 
-CREATE TABLE `financial_goals` (
+CREATE TABLE `Financial_goals` (
   `goal_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `goal_name` varchar(255) NOT NULL,
@@ -118,19 +118,19 @@ CREATE TABLE `financial_goals` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `financial_goals`
+-- Dumping data for table `Financial_goals`
 --
 
-INSERT INTO `financial_goals` (`goal_id`, `user_id`, `goal_name`, `target_amount`, `current_amount`, `deadline`, `notes`, `created_at`) VALUES
+INSERT INTO `Financial_goals` (`goal_id`, `user_id`, `goal_name`, `target_amount`, `current_amount`, `deadline`, `notes`, `created_at`) VALUES
 (1, 5, 'để dành 1 tỉ', 1000000000, 1020000000, '2040-06-05', '', '2025-12-02 02:37:22');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `goals`
+-- Table structure for table `Goals`
 --
 
-CREATE TABLE `goals` (
+CREATE TABLE `Goals` (
   `goal_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `goal_name` varchar(255) NOT NULL,
@@ -143,19 +143,19 @@ CREATE TABLE `goals` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `goals`
+-- Dumping data for table `Goals`
 --
 
-INSERT INTO `goals` (`goal_id`, `user_id`, `goal_name`, `target_amount`, `saved_amount`, `deadline`, `notes`, `status`, `created_at`) VALUES
+INSERT INTO `Goals` (`goal_id`, `user_id`, `goal_name`, `target_amount`, `saved_amount`, `deadline`, `notes`, `status`, `created_at`) VALUES
 (1, 5, 'để dành 1 tỉ', 1000000000.00, 0.00, '2040-05-05', 'mua xe o to', 'pending', '2025-12-02 02:50:22');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `monthlybudget`
+-- Table structure for table `Monthlybudget`
 --
 
-CREATE TABLE `monthlybudget` (
+CREATE TABLE `Monthlybudget` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `month` int(11) NOT NULL,
@@ -167,10 +167,10 @@ CREATE TABLE `monthlybudget` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reminders`
+-- Table structure for table `Reminders`
 --
 
-CREATE TABLE `reminders` (
+CREATE TABLE `Reminders` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -182,10 +182,10 @@ CREATE TABLE `reminders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Dumping data for table `reminders`
+-- Dumping data for table `Reminders`
 --
 
-INSERT INTO `reminders` (`id`, `user_id`, `title`, `description`, `remind_date`, `is_done`, `created_at`, `remind_time`) VALUES
+INSERT INTO `Reminders` (`id`, `user_id`, `title`, `description`, `remind_date`, `is_done`, `created_at`, `remind_time`) VALUES
 (1, 5, 'đóng tiền điện tháng 11', '2.000.000 VNĐ', '2025-11-24', 1, '2025-11-22 16:33:55', NULL),
 (2, 5, 'Đóng tiền nhà tháng 11', '700.000 VNĐ', '2025-11-22', 0, '2025-11-22 16:34:48', NULL),
 (3, 5, 'Đóng tiền quỹ lớp', '90.000 VNĐ', '2025-11-25', 1, '2025-11-22 16:41:46', NULL),
@@ -197,10 +197,10 @@ INSERT INTO `reminders` (`id`, `user_id`, `title`, `description`, `remind_date`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `savings`
+-- Table structure for table `Savings`
 --
 
-CREATE TABLE `savings` (
+CREATE TABLE `Savings` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -209,10 +209,10 @@ CREATE TABLE `savings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
--- Dumping data for table `savings`
+-- Dumping data for table `Savings`
 --
 
-INSERT INTO `savings` (`id`, `user_id`, `name`, `amount`, `created_at`) VALUES
+INSERT INTO `Savings` (`id`, `user_id`, `name`, `amount`, `created_at`) VALUES
 (9, 5, 'Tiết kiệm tháng 11/2025', 790000, '2025-11-29 16:09:57'),
 (10, 5, 'Tiết kiệm tháng 11/2025', 110000, '2025-11-29 16:17:03'),
 (12, 5, 'Tiết kiệm tháng 11/2025', 100000, '2025-11-29 16:38:33'),
@@ -221,10 +221,10 @@ INSERT INTO `savings` (`id`, `user_id`, `name`, `amount`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `savings_logs`
+-- Table structure for table `Savings_logs`
 --
 
-CREATE TABLE `savings_logs` (
+CREATE TABLE `Savings_logs` (
   `log_id` int(11) NOT NULL,
   `goal_id` int(11) NOT NULL,
   `amount` decimal(15,2) DEFAULT NULL,
@@ -236,10 +236,10 @@ CREATE TABLE `savings_logs` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transactions`
+-- Table structure for table `Transactions`
 --
 
-CREATE TABLE `transactions` (
+CREATE TABLE `Transactions` (
   `transaction_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `type` enum('income','expense') DEFAULT NULL,
@@ -252,10 +252,10 @@ CREATE TABLE `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `transactions`
+-- Dumping data for table `Transactions`
 --
 
-INSERT INTO `transactions` (`transaction_id`, `user_id`, `type`, `category_id`, `note`, `amount`, `transaction_date`, `description`, `created_at`) VALUES
+INSERT INTO `Transactions` (`transaction_id`, `user_id`, `type`, `category_id`, `note`, `amount`, `transaction_date`, `description`, `created_at`) VALUES
 (3, 3, NULL, 7, NULL, 1000000.00, '2025-11-14', '', '2025-11-14 08:33:34'),
 (4, 3, NULL, 5, NULL, 50000.00, '2025-11-14', '', '2025-11-14 08:34:25'),
 (5, 3, NULL, 9, NULL, 200000.00, '2025-11-15', '', '2025-11-14 08:36:21'),
@@ -278,10 +278,10 @@ INSERT INTO `transactions` (`transaction_id`, `user_id`, `type`, `category_id`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `users`
+-- Table structure for table `Users`
 --
 
-CREATE TABLE `users` (
+CREATE TABLE `Users` (
   `user_id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -295,10 +295,10 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `Users`
 --
 
-INSERT INTO `users` (`user_id`, `email`, `password`, `username`, `password_hash`, `created_at`, `avatar`, `reset_token`, `token_expire`, `reset_expire`) VALUES
+INSERT INTO `Users` (`user_id`, `email`, `password`, `username`, `password_hash`, `created_at`, `avatar`, `reset_token`, `token_expire`, `reset_expire`) VALUES
 (1, 'jamesmoccua159@gmail.com', '', '64131472', '$2y$10$yswltJrLlbAMBFLhC9WT..CZ1/ohAwS21uhVKHir8kVNDSYXi0KJC', '2025-11-14 06:38:36', NULL, NULL, NULL, NULL),
 (2, '123@gmail.com', '', '123', '$2y$10$wp/.7Y8c13v8B3V8ug/rB.GigYbqatezXCrUTQvNeIPIzpJ4.GkVC', '2025-11-14 08:03:29', NULL, NULL, NULL, NULL),
 (3, 'teobuong89@gmail.com', '', 'Tèo', '$2y$10$Qtbqn0PaaG7tJy9iGeP.VuTHY7S.KKGlC/CzWInnSXzWxTty6vhWe', '2025-11-14 08:30:35', NULL, NULL, NULL, NULL),
@@ -314,78 +314,78 @@ INSERT INTO `users` (`user_id`, `email`, `password`, `username`, `password_hash`
 --
 
 --
--- Indexes for table `alerts`
+-- Indexes for table `Alerts`
 --
-ALTER TABLE `alerts`
+ALTER TABLE `Alerts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `budget`
+-- Indexes for table `Budget`
 --
-ALTER TABLE `budget`
+ALTER TABLE `Budget`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_user_month_year` (`user_id`,`month`,`year`);
 
 --
--- Indexes for table `categories`
+-- Indexes for table `Categories`
 --
-ALTER TABLE `categories`
+ALTER TABLE `Categories`
   ADD PRIMARY KEY (`category_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `financial_goals`
+-- Indexes for table `Financial_goals`
 --
-ALTER TABLE `financial_goals`
+ALTER TABLE `Financial_goals`
   ADD PRIMARY KEY (`goal_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `goals`
+-- Indexes for table `Goals`
 --
-ALTER TABLE `goals`
+ALTER TABLE `Goals`
   ADD PRIMARY KEY (`goal_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `monthlybudget`
+-- Indexes for table `Monthlybudget`
 --
-ALTER TABLE `monthlybudget`
+ALTER TABLE `Monthlybudget`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unq_budget` (`user_id`,`month`,`year`);
 
 --
--- Indexes for table `reminders`
+-- Indexes for table `Reminders`
 --
-ALTER TABLE `reminders`
+ALTER TABLE `Reminders`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `savings`
+-- Indexes for table `Savings`
 --
-ALTER TABLE `savings`
+ALTER TABLE `Savings`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `savings_logs`
+-- Indexes for table `Savings_logs`
 --
-ALTER TABLE `savings_logs`
+ALTER TABLE `Savings_logs`
   ADD PRIMARY KEY (`log_id`);
 
 --
--- Indexes for table `transactions`
+-- Indexes for table `Transactions`
 --
-ALTER TABLE `transactions`
+ALTER TABLE `Transactions`
   ADD PRIMARY KEY (`transaction_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `category_id` (`category_id`);
 
 --
--- Indexes for table `users`
+-- Indexes for table `Users`
 --
-ALTER TABLE `users`
+ALTER TABLE `Users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`);
 
@@ -394,69 +394,69 @@ ALTER TABLE `users`
 --
 
 --
--- AUTO_INCREMENT for table `alerts`
+-- AUTO_INCREMENT for table `Alerts`
 --
-ALTER TABLE `alerts`
+ALTER TABLE `Alerts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- AUTO_INCREMENT for table `budget`
+-- AUTO_INCREMENT for table `Budget`
 --
-ALTER TABLE `budget`
+ALTER TABLE `Budget`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `categories`
+-- AUTO_INCREMENT for table `Categories`
 --
-ALTER TABLE `categories`
+ALTER TABLE `Categories`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
--- AUTO_INCREMENT for table `financial_goals`
+-- AUTO_INCREMENT for table `Financial_goals`
 --
-ALTER TABLE `financial_goals`
+ALTER TABLE `Financial_goals`
   MODIFY `goal_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `goals`
+-- AUTO_INCREMENT for table `Goals`
 --
-ALTER TABLE `goals`
+ALTER TABLE `Goals`
   MODIFY `goal_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `monthlybudget`
+-- AUTO_INCREMENT for table `Monthlybudget`
 --
-ALTER TABLE `monthlybudget`
+ALTER TABLE `Monthlybudget`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `reminders`
+-- AUTO_INCREMENT for table `Reminders`
 --
-ALTER TABLE `reminders`
+ALTER TABLE `Reminders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `savings`
+-- AUTO_INCREMENT for table `Savings`
 --
-ALTER TABLE `savings`
+ALTER TABLE `Savings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT for table `savings_logs`
+-- AUTO_INCREMENT for table `Savings_logs`
 --
-ALTER TABLE `savings_logs`
+ALTER TABLE `Savings_logs`
   MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `transactions`
+-- AUTO_INCREMENT for table `Transactions`
 --
-ALTER TABLE `transactions`
+ALTER TABLE `Transactions`
   MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT for table `Users`
 --
-ALTER TABLE `users`
+ALTER TABLE `Users`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
@@ -464,47 +464,47 @@ ALTER TABLE `users`
 --
 
 --
--- Constraints for table `alerts`
+-- Constraints for table `Alerts`
 --
-ALTER TABLE `alerts`
-  ADD CONSTRAINT `alerts_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+ALTER TABLE `Alerts`
+  ADD CONSTRAINT `alerts_user_fk` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `budget`
+-- Constraints for table `Budget`
 --
-ALTER TABLE `budget`
-  ADD CONSTRAINT `budget_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+ALTER TABLE `Budget`
+  ADD CONSTRAINT `budget_user_fk` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `categories`
+-- Constraints for table `Categories`
 --
-ALTER TABLE `categories`
-  ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+ALTER TABLE `Categories`
+  ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `financial_goals`
+-- Constraints for table `Financial_goals`
 --
-ALTER TABLE `financial_goals`
-  ADD CONSTRAINT `financial_goals_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+ALTER TABLE `Financial_goals`
+  ADD CONSTRAINT `financial_goals_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
 
 --
--- Constraints for table `goals`
+-- Constraints for table `Goals`
 --
-ALTER TABLE `goals`
-  ADD CONSTRAINT `goals_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+ALTER TABLE `Goals`
+  ADD CONSTRAINT `goals_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `reminders`
+-- Constraints for table `Reminders`
 --
-ALTER TABLE `reminders`
-  ADD CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+ALTER TABLE `Reminders`
+  ADD CONSTRAINT `reminders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`);
 
 --
--- Constraints for table `transactions`
+-- Constraints for table `Transactions`
 --
-ALTER TABLE `transactions`
-  ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`);
+ALTER TABLE `Transactions`
+  ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `Categories` (`category_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

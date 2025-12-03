@@ -9,6 +9,9 @@ $password = $_POST['password'];
 
 // 1. Tìm user bằng email
 $stmt = $conn->prepare("SELECT user_id, username, password FROM Users WHERE email = ?");
+if (!$stmt) {
+    die("Prepare failed: " . $conn->error);
+}
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
