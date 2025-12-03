@@ -112,10 +112,7 @@
     <div class="form-container">
         <h2>Đăng nhập</h2>
         <?php
-// Nếu đăng ký thành công
-if (isset($_GET['register']) && $_GET['register'] == 'success') {
-    echo '<p class="alert" style="color:#28a745;">🎉 Đăng ký thành công! Vui lòng đăng nhập.</p>';
-}
+
 
 // Sai mật khẩu
 if (isset($_GET['error']) && $_GET['error'] == 'wrong_password') {
@@ -148,7 +145,7 @@ if (isset($_GET['error']) && $_GET['error'] == 'email_not_found') {
 
         <?php
         if (isset($_GET['register']) && $_GET['register'] == 'success') {
-            echo '<p class="alert">🎉 Đăng ký thành công! Vui lòng đăng nhập.</p>';
+            echo '<p class="alert"> Đăng ký thành công! Vui lòng đăng nhập.</p>';
         }
         ?>
 
